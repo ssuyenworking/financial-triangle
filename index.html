@@ -5,139 +5,50 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>理財金三角｜財務結構檢視</title>
 
-  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-  <!-- html2pdf -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
   <style>
-    body{
-      font-family: system-ui, -apple-system, BlinkMacSystemFont;
-      background:#f7f8fa;
-      margin:0;
-      padding:16px;
-    }
-    h1{ text-align:center; margin-bottom:6px; }
-    .subtitle{ text-align:center; color:#555; margin-top:0; }
-    .desc{ text-align:center; color:#888; font-size:14px; margin: 8px 0 12px; }
-
-    .card{
-      background:#fff;
-      border-radius:12px;
-      padding:16px;
-      margin-bottom:16px;
-      box-shadow:0 2px 8px rgba(0,0,0,0.05);
-    }
-
-    label{ display:block; margin-top:12px; font-weight:900; }
-    .sub-label{ font-weight:700; margin-top:10px; color:#333; }
-    .hint{
-      font-size:13px;
-      color:#666;
-      margin-top:8px;
-      line-height:1.5;
-    }
-
-    input, select, textarea{
-      width:100%;
-      padding:10px;
-      margin-top:6px;
-      font-size:16px;
-      box-sizing:border-box;
-    }
-    textarea{ min-height:72px; resize:vertical; }
-
-    button{
-      width:100%;
-      padding:14px;
-      font-size:18px;
-      border:none;
-      border-radius:8px;
-      margin-top:12px;
-      cursor:pointer;
-    }
-    .primary{ background:#1f6fff; color:#fff; }
-    .cta{ background:#e53935; color:#fff; }
-    .secondary{ background:#4caf50; color:#fff; }
-    .reset{ background:#9e9e9e; color:#fff; }
-
-    .switch-group{ display:flex; gap:8px; margin-top:8px; }
-    .switch-btn{
-      flex:1;
-      padding:12px;
-      font-size:16px;
-      border-radius:8px;
-      border:1px solid #ccc;
-      background:#f2f2f2;
-      cursor:pointer;
-    }
-    .switch-btn.active{
-      background:#1f6fff;
-      color:#fff;
-      border-color:#1f6fff;
-    }
-
-    .result{ font-size:18px; line-height:1.6; margin-top:12px; white-space:pre-line; }
-
-    .calc-box{
-      margin-top:12px;
-      padding:12px;
-      border-radius:10px;
-      background:#f2f6ff;
-    }
-    .calc-title{ font-weight:1000; margin-bottom:6px; }
-    .calc-row{ display:flex; justify-content:space-between; gap:12px; }
-    .calc-row span{ font-weight:1000; }
-
-    /* Modal */
-    .modal{
-      display:none;
-      position:fixed;
-      top:0; left:0;
-      width:100%; height:100%;
-      background:rgba(0,0,0,0.5);
-      z-index:999;
-    }
-    .modal-content{
-      background:#fff;
-      margin:10% auto;
-      padding:18px;
-      border-radius:12px;
-      width:92%;
-      max-width:460px;
-    }
-    .option-btn{
-      width:100%;
-      padding:12px;
-      border-radius:8px;
-      border:1px solid #ccc;
-      background:#f7f7f7;
-      margin-top:8px;
-      font-size:16px;
-      cursor:pointer;
-    }
-
-    /* Report */
-    #reportHeader{
-      margin-bottom:10px;
-      padding-bottom:10px;
-      border-bottom:1px solid #eee;
-    }
-    .report-title{ font-size:20px; font-weight:1000; margin:0; }
-    .report-sub{ color:#555; margin:4px 0 0; }
-    .report-meta{ color:#777; font-size:13px; margin-top:8px; line-height:1.5; }
-    .small-note{ font-size:13px; color:#777; margin-top:12px; }
+    body{font-family:system-ui,-apple-system,BlinkMacSystemFont;background:#f7f8fa;margin:0;padding:16px}
+    h1{text-align:center;margin:0 0 6px}
+    .subtitle{text-align:center;color:#555;margin:0}
+    .desc{text-align:center;color:#888;font-size:14px;margin:8px 0 12px}
+    .card{background:#fff;border-radius:12px;padding:16px;margin-bottom:16px;box-shadow:0 2px 8px rgba(0,0,0,.05)}
+    label{display:block;margin-top:12px;font-weight:900}
+    .sub-label{font-weight:700;margin-top:10px;color:#333}
+    .hint{font-size:13px;color:#666;margin-top:8px;line-height:1.5;white-space:pre-line}
+    input,select,textarea{width:100%;padding:10px;margin-top:6px;font-size:16px;box-sizing:border-box}
+    textarea{min-height:72px;resize:vertical}
+    button{width:100%;padding:14px;font-size:18px;border:none;border-radius:8px;margin-top:12px;cursor:pointer}
+    .primary{background:#1f6fff;color:#fff}
+    .cta{background:#e53935;color:#fff}
+    .secondary{background:#4caf50;color:#fff}
+    .reset{background:#9e9e9e;color:#fff}
+    .switch-group{display:flex;gap:8px;margin-top:8px}
+    .switch-btn{flex:1;padding:12px;font-size:16px;border-radius:8px;border:1px solid #ccc;background:#f2f2f2;cursor:pointer}
+    .switch-btn.active{background:#1f6fff;color:#fff;border-color:#1f6fff}
+    .result{font-size:18px;line-height:1.6;margin-top:12px;white-space:pre-line}
+    .calc-box{margin-top:12px;padding:12px;border-radius:10px;background:#f2f6ff}
+    .calc-title{font-weight:1000;margin-bottom:6px}
+    .calc-row{display:flex;justify-content:space-between;gap:12px}
+    .calc-row span{font-weight:1000}
+    .status-chip{display:inline-block;padding:6px 10px;border-radius:999px;font-weight:900;font-size:13px;background:#eee;color:#333;margin-top:8px}
+    .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);z-index:999}
+    .modal-content{background:#fff;margin:10% auto;padding:18px;border-radius:12px;width:92%;max-width:460px}
+    .option-btn{width:100%;padding:12px;border-radius:8px;border:1px solid #ccc;background:#f7f7f7;margin-top:8px;font-size:16px;cursor:pointer}
+    #reportHeader{margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid #eee}
+    .report-title{font-size:20px;font-weight:1000;margin:0}
+    .report-sub{color:#555;margin:4px 0 0}
+    .report-meta{color:#777;font-size:13px;margin-top:8px;line-height:1.5}
+    .small-note{font-size:13px;color:#777;margin-top:12px}
   </style>
 </head>
 
 <body>
-
   <h1>理財金三角</h1>
   <div class="subtitle">快速看懂你的財務結構</div>
   <div class="desc">不是投資模型，只用來檢視結構是否安全（現場填、現場解讀、現場成交）</div>
 
-  <!-- Input -->
   <div class="card">
     <label>你目前的狀態</label>
     <div class="switch-group">
@@ -158,70 +69,38 @@
     <input type="number" id="incomeAmount" placeholder="例如：45000" inputmode="numeric"/>
 
     <label>日常開銷（每月，請逐項填寫）</label>
-
-    <div class="sub-label">房租/房貸</div>
-    <input type="number" id="exp_housing" placeholder="0" inputmode="numeric"/>
-
-    <div class="sub-label">車貸</div>
-    <input type="number" id="exp_carloan" placeholder="0" inputmode="numeric"/>
-
-    <div class="sub-label">水電瓦斯/網路手機</div>
-    <input type="number" id="exp_utilities" placeholder="0" inputmode="numeric"/>
-
-    <div class="sub-label">餐飲（外食/買菜）</div>
-    <input type="number" id="exp_food" placeholder="0" inputmode="numeric"/>
-
-    <div class="sub-label">交通（通勤/油錢/停車）</div>
-    <input type="number" id="exp_transport" placeholder="0" inputmode="numeric"/>
-
-    <div class="sub-label">教育/育兒（學費/才藝/保母）</div>
-    <input type="number" id="exp_kids" placeholder="0" inputmode="numeric"/>
-
-    <div class="sub-label">保費（現有保單每月保費）</div>
-    <input type="number" id="exp_insurance" placeholder="0" inputmode="numeric"/>
-
-    <div class="sub-label">娛樂/購物/社交</div>
-    <input type="number" id="exp_lifestyle" placeholder="0" inputmode="numeric"/>
-
-    <div class="sub-label">其他固定支出</div>
-    <input type="number" id="exp_other" placeholder="0" inputmode="numeric"/>
+    <div class="sub-label">房租/房貸</div><input type="number" id="exp_housing" placeholder="0" inputmode="numeric"/>
+    <div class="sub-label">車貸</div><input type="number" id="exp_carloan" placeholder="0" inputmode="numeric"/>
+    <div class="sub-label">水電瓦斯/網路手機</div><input type="number" id="exp_utilities" placeholder="0" inputmode="numeric"/>
+    <div class="sub-label">餐飲（外食/買菜）</div><input type="number" id="exp_food" placeholder="0" inputmode="numeric"/>
+    <div class="sub-label">交通（通勤/油錢/停車）</div><input type="number" id="exp_transport" placeholder="0" inputmode="numeric"/>
+    <div class="sub-label">教育/育兒（學費/才藝/保母）</div><input type="number" id="exp_kids" placeholder="0" inputmode="numeric"/>
+    <div class="sub-label">保費（現有保單每月保費）</div><input type="number" id="exp_insurance" placeholder="0" inputmode="numeric"/>
+    <div class="sub-label">娛樂/購物/社交</div><input type="number" id="exp_lifestyle" placeholder="0" inputmode="numeric"/>
+    <div class="sub-label">其他固定支出</div><input type="number" id="exp_other" placeholder="0" inputmode="numeric"/>
 
     <div class="calc-box">
       <div class="calc-title">系統計算（現金流）</div>
-      <div class="calc-row">
-        <div>每月日常開銷合計</div>
-        <div><span id="expenseTotal">0</span></div>
-      </div>
-      <div class="calc-row" style="margin-top:6px;">
-        <div>可支配所得（月剩餘）</div>
-        <div><span id="remainingDisplay">0</span></div>
-      </div>
-      <div class="hint">
-        可支配所得 = 月收入（換算） - 日常開銷合計
-      </div>
+      <div class="calc-row"><div>每月日常開銷合計</div><div><span id="expenseTotal">0</span></div></div>
+      <div class="calc-row" style="margin-top:6px;"><div>可支配所得（月剩餘）</div><div><span id="remainingDisplay">0</span></div></div>
+      <div class="hint">可支配所得 = 月收入（換算） - 日常開銷合計</div>
     </div>
 
     <label>緊急預備金（目前已存的金額）</label>
     <input type="number" id="emergencyFund" placeholder="例如：120000" inputmode="numeric"/>
+
     <div class="calc-box" style="background:#f7f7ff;">
       <div class="calc-title">系統計算（預備金）</div>
-      <div class="calc-row">
-        <div>預備金可支撐（月）</div>
-        <div><span id="fundMonths">0</span></div>
-      </div>
-      <div class="hint">
-        預備金月數 = 緊急預備金 ÷ 每月日常開銷合計  
-        （如果開銷為 0，會先以 0 月顯示）
-      </div>
+      <div class="calc-row"><div>預備金可支撐（月）</div><div><span id="fundMonths">0</span></div></div>
+      <div class="calc-row" style="margin-top:6px;"><div>狀態提示</div><div><span id="fundStatus" class="status-chip">尚未評估</span></div></div>
+      <div class="hint" id="fundHint">預備金月數 = 緊急預備金 ÷ 每月日常開銷合計</div>
     </div>
 
     <label>3–5 年計畫（請客戶自己填）</label>
-    <div class="sub-label">計畫內容（例如：買車/買房頭期/結婚/出國/創業/進修）</div>
-    <textarea id="planText" placeholder="請描述你的 3–5 年目標（可多項）"></textarea>
-
+    <div class="sub-label">計畫內容（可多項）</div>
+    <textarea id="planText" placeholder="例如：結婚、買車、進修、出國、創業、房屋頭期款..."></textarea>
     <div class="sub-label">目標金額（估計即可）</div>
     <input type="number" id="planAmount" placeholder="例如：300000" inputmode="numeric"/>
-
     <div class="sub-label">預計幾年完成（3–5 年）</div>
     <select id="planYears">
       <option value="0">尚未確定</option>
@@ -231,22 +110,14 @@
     </select>
 
     <label>是否有投資</label>
-    <select id="investment">
-      <option value="none">沒有</option>
-      <option value="yes">有</option>
-    </select>
+    <select id="investment"><option value="none">沒有</option><option value="yes">有</option></select>
 
     <label>保險狀態</label>
-    <select id="insurance">
-      <option value="none">沒有</option>
-      <option value="partial">不完整</option>
-      <option value="basic">基本保障完整</option>
-    </select>
+    <select id="insurance"><option value="none">沒有</option><option value="partial">不完整</option><option value="basic">基本保障完整</option></select>
 
     <button class="primary" id="btnAnalyze" type="button">分析我的理財金三角</button>
   </div>
 
-  <!-- Report -->
   <div class="card" id="report">
     <div id="reportHeader">
       <p class="report-title">理財金三角｜財務結構檢視報告</p>
@@ -259,26 +130,12 @@
 
     <div class="calc-box" style="background:#f7f7ff;">
       <div class="calc-title">現況摘要（每月）</div>
-      <div class="calc-row">
-        <div>月收入（換算）</div>
-        <div><span id="reportIncome">0</span></div>
-      </div>
-      <div class="calc-row" style="margin-top:6px;">
-        <div>日常開銷合計</div>
-        <div><span id="reportExpense">0</span></div>
-      </div>
-      <div class="calc-row" style="margin-top:6px;">
-        <div>可支配所得（月剩餘）</div>
-        <div><span id="reportRemaining">0</span></div>
-      </div>
-      <div class="calc-row" style="margin-top:6px;">
-        <div>緊急預備金</div>
-        <div><span id="reportFund">0</span></div>
-      </div>
-      <div class="calc-row" style="margin-top:6px;">
-        <div>預備金可支撐（月）</div>
-        <div><span id="reportFundMonths">0</span></div>
-      </div>
+      <div class="calc-row"><div>月收入（換算）</div><div><span id="reportIncome">0</span></div></div>
+      <div class="calc-row" style="margin-top:6px;"><div>日常開銷合計</div><div><span id="reportExpense">0</span></div></div>
+      <div class="calc-row" style="margin-top:6px;"><div>可支配所得（月剩餘）</div><div><span id="reportRemaining">0</span></div></div>
+      <div class="calc-row" style="margin-top:6px;"><div>緊急預備金</div><div><span id="reportFund">0</span></div></div>
+      <div class="calc-row" style="margin-top:6px;"><div>預備金可支撐（月）</div><div><span id="reportFundMonths">0</span></div></div>
+      <div class="calc-row" style="margin-top:6px;"><div>預備金狀態</div><div><span id="reportFundStatus">尚未評估</span></div></div>
     </div>
 
     <div class="calc-box" style="background:#fff7f2;">
@@ -290,7 +147,6 @@
       </div>
     </div>
 
-    <!-- Chart small -->
     <div style="max-width:360px;margin:0 auto;">
       <canvas id="triangleChart" height="260"></canvas>
     </div>
@@ -309,407 +165,333 @@
   <button class="secondary" id="btnPDF" type="button">下載本次分析報告（PDF）</button>
   <button class="reset" id="btnReset" type="button">重設／下一位客戶</button>
 
-  <!-- Modal -->
   <div id="modal" class="modal">
     <div class="modal-content">
       <h3 style="margin:0 0 8px;">如果只能先顧好一件事，你現在最在意哪一塊？</h3>
-
       <button class="option-btn" type="button" data-focus="life">生活不中斷</button>
       <button class="option-btn" type="button" data-focus="family">不拖累家人</button>
       <button class="option-btn" type="button" data-focus="future">未來計畫不被打斷</button>
-
-      <p id="talkCard" style="margin-top:12px; line-height:1.6;"></p>
-
+      <p id="talkCard" style="margin-top:12px;line-height:1.6;"></p>
       <button class="primary" id="btnCloseModal" type="button">了解，開始說明</button>
     </div>
   </div>
 
 <script>
-  // ===== State =====
-  let chart = null;
-  let userType = "student";
-  let focusText = "";
+  let chart=null;
+  let userType="student";
+  let focusText="";
 
-  // ===== Helpers =====
-  function n(v){ return Number(v || 0); }
-  function fmt(v){
-    const num = Math.round(Number(v || 0));
-    return num.toLocaleString("zh-Hant-TW");
-  }
+  const n=v=>Number(v||0);
+  const fmt=v=>Math.round(Number(v||0)).toLocaleString("zh-Hant-TW");
   function todayString(){
-    const d = new Date();
-    const y = d.getFullYear();
-    const m = String(d.getMonth()+1).padStart(2,"0");
-    const day = String(d.getDate()).padStart(2,"0");
-    return `${y}-${m}-${day}`;
+    const d=new Date();
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
   }
-
   function getMonthlyIncome(){
-    const incomeTypeEl = document.getElementById("incomeType");
-    const incomeAmountEl = document.getElementById("incomeAmount");
-    const amount = n(incomeAmountEl.value);
-    if (incomeTypeEl.value === "year") return amount / 12;
-    return amount;
+    const t=document.getElementById("incomeType").value;
+    const a=n(document.getElementById("incomeAmount").value);
+    return t==="year"?a/12:a;
   }
-
   function getExpenseTotal(){
-    const ids = [
-      "exp_housing","exp_carloan","exp_utilities","exp_food","exp_transport",
-      "exp_kids","exp_insurance","exp_lifestyle","exp_other"
-    ];
-    return ids.reduce((sum, id) => sum + n(document.getElementById(id).value), 0);
+    const ids=["exp_housing","exp_carloan","exp_utilities","exp_food","exp_transport","exp_kids","exp_insurance","exp_lifestyle","exp_other"];
+    return ids.reduce((s,id)=>s+n(document.getElementById(id).value),0);
   }
-
-  function getEmergencyFund(){
-    return n(document.getElementById("emergencyFund").value);
-  }
-
+  function getEmergencyFund(){ return n(document.getElementById("emergencyFund").value); }
   function getFundMonths(){
-    const expense = getExpenseTotal();
-    const fund = getEmergencyFund();
-    if (expense <= 0) return 0;
-    return fund / expense;
+    const exp=getExpenseTotal();
+    const fund=getEmergencyFund();
+    if(exp<=0) return 0;
+    return fund/exp;
   }
-
   function getPlan(){
-    const text = (document.getElementById("planText").value || "").trim();
-    const amount = n(document.getElementById("planAmount").value);
-    const years = n(document.getElementById("planYears").value);
-    return { text, amount, years };
+    return {
+      text:(document.getElementById("planText").value||"").trim(),
+      amount:n(document.getElementById("planAmount").value),
+      years:n(document.getElementById("planYears").value)
+    };
+  }
+  function fundStatusByType(fm){
+    if(userType==="student"){
+      if(fm>=3) return {label:"很穩 ✅", msg:"學生版：≥3 個月很穩，遇到突發狀況比較不容易影響學業。"};
+      if(fm>=2) return {label:"足夠 👍", msg:"學生版：2–3 個月算足夠，已經有基本緩衝。"};
+      if(fm>=1) return {label:"尚可 ⚠️", msg:"學生版：1–2 個月尚可，但遇到較大狀況可能會吃緊。"};
+      return {label:"不足 ❗", msg:"學生版：<1 個月偏不足，建議先把預備金拉到 1–2 個月。"};
+    }else{
+      if(fm>=6) return {label:"很穩 ✅", msg:"上班族版：≥6 個月很穩，現金流遇到變動也比較扛得住。"};
+      if(fm>=3) return {label:"足夠 👍", msg:"上班族版：3–6 個月算足夠，有基本安全邊際。"};
+      if(fm>=1) return {label:"尚可 ⚠️", msg:"上班族版：1–3 個月尚可，但若收入中斷會比較有壓力。"};
+      return {label:"不足 ❗", msg:"上班族版：<1 個月偏不足，建議先把預備金拉到 1–3 個月。"};
+    }
   }
 
   function updatePreviewAndReport(){
-    // Report header
-    document.getElementById("reportDate").innerText = todayString();
-    const alias = (document.getElementById("clientAlias").value || "").trim();
-    document.getElementById("reportAlias").innerText = alias ? alias : "（未填）";
+    document.getElementById("reportDate").innerText=todayString();
+    const alias=(document.getElementById("clientAlias").value||"").trim();
+    document.getElementById("reportAlias").innerText=alias?alias:"（未填）";
 
-    // Cashflow
-    const monthlyIncome = getMonthlyIncome();
-    const expenseTotal = getExpenseTotal();
-    const remaining = monthlyIncome - expenseTotal;
+    const income=getMonthlyIncome();
+    const exp=getExpenseTotal();
+    const remain=income-exp;
 
-    document.getElementById("expenseTotal").innerText = fmt(expenseTotal);
-    document.getElementById("remainingDisplay").innerText = fmt(remaining);
+    document.getElementById("expenseTotal").innerText=fmt(exp);
+    document.getElementById("remainingDisplay").innerText=fmt(remain);
 
-    document.getElementById("reportIncome").innerText = fmt(monthlyIncome);
-    document.getElementById("reportExpense").innerText = fmt(expenseTotal);
-    document.getElementById("reportRemaining").innerText = fmt(remaining);
+    document.getElementById("reportIncome").innerText=fmt(income);
+    document.getElementById("reportExpense").innerText=fmt(exp);
+    document.getElementById("reportRemaining").innerText=fmt(remain);
 
-    // Fund
-    const fund = getEmergencyFund();
-    const fm = getFundMonths();
-    document.getElementById("fundMonths").innerText = fm ? fm.toFixed(1) : "0";
-    document.getElementById("reportFund").innerText = fmt(fund);
-    document.getElementById("reportFundMonths").innerText = fm ? fm.toFixed(1) : "0";
+    const fund=getEmergencyFund();
+    const fm=getFundMonths();
+    const fmDisp=fm?fm.toFixed(1):"0";
+    document.getElementById("fundMonths").innerText=fmDisp;
+    document.getElementById("reportFund").innerText=fmt(fund);
+    document.getElementById("reportFundMonths").innerText=fmDisp;
 
-    // Plan
-    const plan = getPlan();
-    document.getElementById("reportPlanText").innerText = plan.text ? plan.text : "（未填）";
-    document.getElementById("reportPlanAmount").innerText = fmt(plan.amount);
-    document.getElementById("reportPlanYears").innerText = plan.years ? `${plan.years} 年` : "尚未確定";
+    const st=fundStatusByType(fm);
+    document.getElementById("fundStatus").innerText=st.label;
+    document.getElementById("fundHint").innerText="預備金月數 = 緊急預備金 ÷ 每月日常開銷合計\n"+st.msg;
+    document.getElementById("reportFundStatus").innerText=st.label;
+
+    const plan=getPlan();
+    document.getElementById("reportPlanText").innerText=plan.text?plan.text:"（未填）";
+    document.getElementById("reportPlanAmount").innerText=fmt(plan.amount);
+    document.getElementById("reportPlanYears").innerText=plan.years?`${plan.years} 年`:"尚未確定";
   }
 
   function setUserType(type){
-    userType = type;
-    const btnStudent = document.getElementById("btnStudent");
-    const btnWorker = document.getElementById("btnWorker");
-    btnStudent.classList.remove("active");
-    btnWorker.classList.remove("active");
-    (type === "student" ? btnStudent : btnWorker).classList.add("active");
+    userType=type;
+    document.getElementById("btnStudent").classList.toggle("active", type==="student");
+    document.getElementById("btnWorker").classList.toggle("active", type==="worker");
+    updatePreviewAndReport();
   }
 
-  // ===== Scoring (0~3) =====
   function scoreSafety(){
-    const insuranceEl = document.getElementById("insurance");
-    if (insuranceEl.value === "basic") return 3;
-    if (insuranceEl.value === "partial") return 2;
+    const v=document.getElementById("insurance").value;
+    if(v==="basic") return 3;
+    if(v==="partial") return 2;
     return 1;
   }
-
   function scorePreparation(){
-    const remaining = getMonthlyIncome() - getExpenseTotal();
-    const fundMonths = getFundMonths();
-    const plan = getPlan();
+    const remain=getMonthlyIncome()-getExpenseTotal();
+    const fm=getFundMonths();
+    const plan=getPlan();
+    const hasPlanText=!!plan.text;
+    const hasPlanNumbers=(plan.amount>0)||(plan.years>0);
 
-    // Plan completeness: text + (amount or years) gives more weight
-    const hasPlanText = !!plan.text;
-    const hasPlanNumbers = (plan.amount > 0) || (plan.years > 0);
-
-    // Student: fund months dominates
-    if (userType === "student") {
-      if (fundMonths >= 2) return 3;      // 2個月以上很不錯
-      if (fundMonths > 0) return 2;       // 有預備金
-      return 1;                           // 沒預備金
+    if(userType==="student"){
+      if(fm>=2) return 3;
+      if(fm>0) return 2;
+      if(getEmergencyFund()>0) return 2;
+      return 1;
     }
 
-    // Worker: cashflow + fund months + plan completeness
-    // baseline
-    let score = 1;
-
-    if (remaining > 0) score = 2;
-    if (remaining > 0 && fundMonths >= 3) score = 3;
-
-    // If plan is clear, boost within reason
-    if (hasPlanText && hasPlanNumbers) {
-      score = Math.min(3, score + 1);
-    }
-
-    return Math.max(1, Math.min(3, score));
+    let s=1;
+    if(remain>0) s=2;
+    if(remain>0 && fm>=3) s=3;
+    if(hasPlanText && hasPlanNumbers) s=Math.min(3, s+1);
+    return Math.max(1, Math.min(3, s));
   }
-
   function scoreGrowth(){
-    const investmentEl = document.getElementById("investment");
-    return investmentEl.value === "yes" ? 3 : 2; // 不給弱
+    return document.getElementById("investment").value==="yes"?3:2;
   }
 
-  // ===== Analyze =====
   function analyze(){
     updatePreviewAndReport();
+    const safety=scoreSafety();
+    const prep=scorePreparation();
+    const growth=scoreGrowth();
 
-    const safety = scoreSafety();
-    const preparation = scorePreparation();
-    const growth = scoreGrowth();
-
-    if (chart) chart.destroy();
-    chart = new Chart(document.getElementById("triangleChart"), {
-      type: "radar",
-      data: {
-        labels: ["安全", "準備", "成長"],
-        datasets: [{
-          data: [safety, preparation, growth],
-          backgroundColor: "rgba(31,111,255,0.2)",
-          borderColor: "#1f6fff",
-          borderWidth: 2
+    if(chart) chart.destroy();
+    chart=new Chart(document.getElementById("triangleChart"),{
+      type:"radar",
+      data:{
+        labels:["安全","準備","成長"],
+        datasets:[{
+          data:[safety,prep,growth],
+          backgroundColor:"rgba(31,111,255,0.2)",
+          borderColor:"#1f6fff",
+          borderWidth:2
         }]
       },
-      options: {
-        maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
-        scales: { r: { min: 0, max: 3, ticks: { display: false } } }
+      options:{
+        maintainAspectRatio:false,
+        plugins:{legend:{display:false}},
+        scales:{r:{min:0,max:3,ticks:{display:false}}}
       }
     });
 
-    const summaryEl = document.getElementById("summary");
-    const nextStepEl = document.getElementById("nextStep");
+    const summaryEl=document.getElementById("summary");
+    const nextStepEl=document.getElementById("nextStep");
 
-    const remaining = getMonthlyIncome() - getExpenseTotal();
-    const fm = getFundMonths();
-    const plan = getPlan();
+    const fm=getFundMonths();
+    const plan=getPlan();
+    const st=fundStatusByType(fm);
 
-    // Summary
-    if (safety === 1) {
-      summaryEl.innerText = "目前最需要先處理的不是投資或存很多，而是確保發生狀況時，生活與收入不會被打斷。";
-    } else if (preparation === 1) {
-      if (userType === "student") {
-        summaryEl.innerText = "你現在的關鍵是先建立緊急預備金，讓臨時需要時不會慌；同時把基本保障顧好，避免影響學業與生活。";
-      } else {
-        summaryEl.innerText = "你現在的關鍵是把現金流與緊急預備金拉起來，並把基本保障補齊，避免責任增加時風險沒跟上。";
-      }
-    } else {
-      summaryEl.innerText = "你的財務結構已有基礎，可以一步一步來，不需要一次完成；先顧好核心風險，後面再談更長期的安排。";
+    if(safety===1){
+      summaryEl.innerText="目前最需要先處理的不是投資或存很多，而是確保發生狀況時，生活與收入不會被打斷。";
+    }else if(prep===1){
+      summaryEl.innerText="你現在的關鍵是把緊急預備金與基本風險先顧好，讓人生計畫不會被突發事件打斷。";
+    }else{
+      summaryEl.innerText="你的財務結構已有基礎，可以一步一步來；先穩定風險與預備金，再把計畫落地。";
     }
 
-    // Next step default
-    const fundLine = (getExpenseTotal() > 0)
-      ? `你目前預備金約可撐 ${fm ? fm.toFixed(1) : "0"} 個月。`
-      : "你目前尚未輸入日常開銷，預備金月數暫無法計算。";
+    const fundLine=(getExpenseTotal()>0)
+      ? `預備金約可撐 ${fm?fm.toFixed(1):"0"} 個月（${st.label}）。`
+      : `預備金狀態：${st.label}（建議先填日常開銷，月數會更準）。`;
 
-    const planLine = plan.text
-      ? `你的 3–5 年計畫：${plan.text}${plan.amount>0?`（約 ${fmt(plan.amount)}）`:""}${plan.years>0?`，目標 ${plan.years} 年內完成。`:""}`
-      : "你目前尚未填寫 3–5 年計畫（建議先寫下目標內容與大概金額）。";
+    const planLine=plan.text
+      ? `3–5 年計畫：${plan.text}${plan.amount>0?`（約 ${fmt(plan.amount)}）`:""}${plan.years>0?`，目標 ${plan.years} 年內完成。`:""}`
+      : "3–5 年計畫：尚未填寫（建議先寫下目標內容與大概金額）。";
 
-    nextStepEl.innerText =
-      "下一步建議（先建立基本盤）：\n" +
-      `• ${fundLine}\n` +
-      `• ${planLine}\n\n` +
-      "1) 先確認醫療/意外是否足夠（避免突發事件打亂生活）\n" +
-      "2) 再看是否需要責任型保障（對家庭/未來的承擔）\n" +
+    nextStepEl.innerText=
+      "下一步建議（先把結構穩住）：\n"+
+      `• ${fundLine}\n`+
+      `• ${planLine}\n\n`+
+      "1) 先確認醫療/意外是否足夠（避免突發事件打亂生活）\n"+
+      "2) 再看是否需要責任型保障（對家庭/未來的承擔）\n"+
       "3) 最後才談更長期的安排（分階段完成）";
 
-    // Clear focus section if not chosen yet
-    document.getElementById("focusResult").innerText = "";
+    document.getElementById("focusResult").innerText="";
   }
 
-  // ===== Modal =====
-  function openModal(){ document.getElementById("modal").style.display = "block"; }
-  function closeModal(){ document.getElementById("modal").style.display = "none"; }
+  function openModal(){ document.getElementById("modal").style.display="block"; }
+  function closeModal(){ document.getElementById("modal").style.display="none"; }
 
   function selectFocus(type){
-    const focusResultEl = document.getElementById("focusResult");
-    const talkCardEl = document.getElementById("talkCard");
-    const nextStepEl = document.getElementById("nextStep");
+    const focusResultEl=document.getElementById("focusResult");
+    const talkCardEl=document.getElementById("talkCard");
+    const nextStepEl=document.getElementById("nextStep");
 
-    if (userType === "student") {
-      if (type === "life") focusText = "你選擇的是：生活不中斷。重點是避免意外或生病影響學業與生活。";
-      if (type === "family") focusText = "你選擇的是：不拖累家人。先用最基本、負擔得起的方式把風險顧好。";
-      if (type === "future") focusText = "你選擇的是：未來計畫不被打斷。先顧好風險，讓選擇不會被迫中斷。";
-
-      nextStepEl.innerText =
-        "下一步建議（具體說明重點）：\n" +
-        "1) 基本醫療保障（住院、手術）\n" +
-        "2) 意外保障（突發事件不影響學業/生活）\n" +
-        "3) 小額壽險（保護未來選擇權）\n\n" +
+    if(userType==="student"){
+      if(type==="life") focusText="你選擇的是：生活不中斷。重點是避免意外或生病影響學業與生活。";
+      if(type==="family") focusText="你選擇的是：不拖累家人。先用最基本、負擔得起的方式把風險顧好。";
+      if(type==="future") focusText="你選擇的是：未來計畫不被打斷。先顧好風險，讓選擇不會被迫中斷。";
+      nextStepEl.innerText=
+        "下一步建議（具體說明重點）：\n"+
+        "1) 基本醫療保障（住院、手術）\n"+
+        "2) 意外保障（突發事件不影響學業/生活）\n"+
+        "3) 小額壽險（保護未來選擇權）\n\n"+
         "原則：保費負擔輕、不鎖長期、先顧風險不談投資。";
-
-    } else {
-      if (type === "life") focusText = "你選擇的是：生活不中斷。重點在避免收入中斷影響生活。";
-      if (type === "family") focusText = "你選擇的是：不拖累家人。重點在責任風險的承擔。";
-      if (type === "future") focusText = "你選擇的是：未來計畫不被打斷。避免一次事件打亂多年努力。";
-
-      nextStepEl.innerText =
-        "下一步建議（具體說明重點）：\n" +
-        "1) 基本醫療與意外（避免收入中斷）\n" +
-        "2) 壽險責任保障（對家人負責）\n" +
-        "3) 視現金流補強長期保障（分階段完成）\n\n" +
+    }else{
+      if(type==="life") focusText="你選擇的是：生活不中斷。重點在避免收入中斷影響生活。";
+      if(type==="family") focusText="你選擇的是：不拖累家人。重點在責任風險的承擔。";
+      if(type==="future") focusText="你選擇的是：未來計畫不被打斷。避免一次事件打亂多年努力。";
+      nextStepEl.innerText=
+        "下一步建議（具體說明重點）：\n"+
+        "1) 基本醫療與意外（避免收入中斷）\n"+
+        "2) 壽險責任保障（對家人負責）\n"+
+        "3) 視現金流補強長期保障（分階段完成）\n\n"+
         "原則：不影響生活品質、分階段完成、先穩定再擴大。";
     }
-
-    talkCardEl.innerText = focusText;
-    focusResultEl.innerText = focusText;
+    talkCardEl.innerText=focusText;
+    focusResultEl.innerText=focusText;
   }
 
-  // ===== PDF (canvas -> img to avoid blank) =====
   function downloadPDF(){
-    const summaryText = (document.getElementById("summary").innerText || "").trim();
-    if (!summaryText) {
-      alert("請先按「分析我的理財金三角」產生報告內容，再下載 PDF。");
-      return;
-    }
+    const summaryText=(document.getElementById("summary").innerText||"").trim();
+    if(!summaryText){ alert("請先按「分析我的理財金三角」產生報告內容，再下載 PDF。"); return; }
 
     updatePreviewAndReport();
 
-    const alias = (document.getElementById("clientAlias").value || "").trim();
-    const filenameBase = alias ? `理財金三角_結構檢視報告_${alias}` : "理財金三角_結構檢視報告";
+    const alias=(document.getElementById("clientAlias").value||"").trim();
+    const filenameBase=alias?`理財金三角_結構檢視報告_${alias}`:"理財金三角_結構檢視報告";
 
-    const canvas = document.getElementById("triangleChart");
-    const dataUrl = canvas.toDataURL("image/png", 1.0);
+    const canvas=document.getElementById("triangleChart");
+    const dataUrl=canvas.toDataURL("image/png",1.0);
 
-    const img = document.createElement("img");
-    img.src = dataUrl;
-    img.style.width = "100%";
-    img.style.maxWidth = "360px";
-    img.style.display = "block";
-    img.style.margin = "0 auto";
+    const img=document.createElement("img");
+    img.src=dataUrl;
+    img.style.width="100%";
+    img.style.maxWidth="360px";
+    img.style.display="block";
+    img.style.margin="0 auto";
 
-    const wrapper = canvas.parentElement;
-    const canvasDisplayBackup = canvas.style.display;
-    canvas.style.display = "none";
+    const wrapper=canvas.parentElement;
+    const backup=canvas.style.display;
+    canvas.style.display="none";
     wrapper.appendChild(img);
 
-    requestAnimationFrame(() => {
-      const opt = {
-        margin: 0.8,
-        filename: `${filenameBase}.pdf`,
-        image: { type: "jpeg", quality: 0.98 },
-        html2canvas: { scale: 2, backgroundColor: "#ffffff", useCORS: true },
-        jsPDF: { unit: "cm", format: "a4", orientation: "portrait" }
+    requestAnimationFrame(()=>{
+      const opt={
+        margin:0.8,
+        filename:`${filenameBase}.pdf`,
+        image:{type:"jpeg",quality:0.98},
+        html2canvas:{scale:2,backgroundColor:"#ffffff",useCORS:true},
+        jsPDF:{unit:"cm",format:"a4",orientation:"portrait"}
       };
-
-      html2pdf()
-        .set(opt)
-        .from(document.getElementById("report"))
-        .save()
-        .then(() => {
-          img.remove();
-          canvas.style.display = canvasDisplayBackup || "block";
-        })
-        .catch(() => {
-          img.remove();
-          canvas.style.display = canvasDisplayBackup || "block";
-          alert("PDF 產生失敗，請再試一次（建議用 Chrome）。");
-        });
+      html2pdf().set(opt).from(document.getElementById("report")).save().then(()=>{
+        img.remove(); canvas.style.display=backup||"block";
+      }).catch(()=>{
+        img.remove(); canvas.style.display=backup||"block";
+        alert("PDF 產生失敗，請再試一次（建議用 Chrome）。");
+      });
     });
   }
 
-  // ===== Reset =====
   function resetAll(){
-    document.getElementById("clientAlias").value = "";
-    document.getElementById("incomeType").value = "month";
-    document.getElementById("incomeAmount").value = "";
-
-    const expIds = [
-      "exp_housing","exp_carloan","exp_utilities","exp_food","exp_transport",
-      "exp_kids","exp_insurance","exp_lifestyle","exp_other"
-    ];
-    expIds.forEach(id => document.getElementById(id).value = "");
-
-    document.getElementById("emergencyFund").value = "";
-    document.getElementById("planText").value = "";
-    document.getElementById("planAmount").value = "";
-    document.getElementById("planYears").value = "0";
-
-    document.getElementById("investment").value = "none";
-    document.getElementById("insurance").value = "none";
-
-    document.getElementById("summary").innerText = "";
-    document.getElementById("focusResult").innerText = "";
-    document.getElementById("talkCard").innerText = "";
-    document.getElementById("nextStep").innerText = "";
-    focusText = "";
-
-    if (chart) { chart.destroy(); chart = null; }
-
+    document.getElementById("clientAlias").value="";
+    document.getElementById("incomeType").value="month";
+    document.getElementById("incomeAmount").value="";
+    ["exp_housing","exp_carloan","exp_utilities","exp_food","exp_transport","exp_kids","exp_insurance","exp_lifestyle","exp_other"].forEach(id=>document.getElementById(id).value="");
+    document.getElementById("emergencyFund").value="";
+    document.getElementById("planText").value="";
+    document.getElementById("planAmount").value="";
+    document.getElementById("planYears").value="0";
+    document.getElementById("investment").value="none";
+    document.getElementById("insurance").value="none";
+    document.getElementById("summary").innerText="";
+    document.getElementById("focusResult").innerText="";
+    document.getElementById("talkCard").innerText="";
+    document.getElementById("nextStep").innerText="";
+    focusText="";
+    if(chart){ chart.destroy(); chart=null; }
     setUserType("student");
     closeModal();
-
-    document.getElementById("incomeLabel").innerText = "月收入";
-    document.getElementById("reportDate").innerText = todayString();
-
+    document.getElementById("incomeLabel").innerText="月收入";
+    document.getElementById("reportDate").innerText=todayString();
     updatePreviewAndReport();
     document.getElementById("incomeAmount").focus();
   }
 
-  // ===== Bindings =====
-  document.addEventListener("DOMContentLoaded", () => {
-    document.getElementById("reportDate").innerText = todayString();
+  document.addEventListener("DOMContentLoaded",()=>{
+    document.getElementById("reportDate").innerText=todayString();
 
-    // user type
-    document.getElementById("btnStudent").addEventListener("click", () => setUserType("student"));
-    document.getElementById("btnWorker").addEventListener("click", () => setUserType("worker"));
+    document.getElementById("btnStudent").addEventListener("click",()=>setUserType("student"));
+    document.getElementById("btnWorker").addEventListener("click",()=>setUserType("worker"));
 
-    // income label
-    const incomeTypeEl = document.getElementById("incomeType");
-    const incomeLabelEl = document.getElementById("incomeLabel");
+    const incomeTypeEl=document.getElementById("incomeType");
+    const incomeLabelEl=document.getElementById("incomeLabel");
     function syncIncomeLabel(){
-      incomeLabelEl.innerText = incomeTypeEl.value === "year" ? "年收入" : "月收入";
+      incomeLabelEl.innerText=incomeTypeEl.value==="year"?"年收入":"月收入";
       updatePreviewAndReport();
     }
-    incomeTypeEl.addEventListener("change", syncIncomeLabel);
+    incomeTypeEl.addEventListener("change",syncIncomeLabel);
 
-    // realtime preview
-    document.getElementById("clientAlias").addEventListener("input", updatePreviewAndReport);
-    document.getElementById("incomeAmount").addEventListener("input", updatePreviewAndReport);
+    document.getElementById("clientAlias").addEventListener("input",updatePreviewAndReport);
+    document.getElementById("incomeAmount").addEventListener("input",updatePreviewAndReport);
+    ["exp_housing","exp_carloan","exp_utilities","exp_food","exp_transport","exp_kids","exp_insurance","exp_lifestyle","exp_other"].forEach(id=>{
+      document.getElementById(id).addEventListener("input",updatePreviewAndReport);
+    });
+    document.getElementById("emergencyFund").addEventListener("input",updatePreviewAndReport);
+    document.getElementById("planText").addEventListener("input",updatePreviewAndReport);
+    document.getElementById("planAmount").addEventListener("input",updatePreviewAndReport);
+    document.getElementById("planYears").addEventListener("change",updatePreviewAndReport);
+    document.getElementById("investment").addEventListener("change",updatePreviewAndReport);
+    document.getElementById("insurance").addEventListener("change",updatePreviewAndReport);
 
-    const expIds = [
-      "exp_housing","exp_carloan","exp_utilities","exp_food","exp_transport",
-      "exp_kids","exp_insurance","exp_lifestyle","exp_other"
-    ];
-    expIds.forEach(id => document.getElementById(id).addEventListener("input", updatePreviewAndReport));
+    document.getElementById("btnAnalyze").addEventListener("click",analyze);
+    document.getElementById("btnOpenModal").addEventListener("click",openModal);
+    document.getElementById("btnCloseModal").addEventListener("click",closeModal);
+    document.getElementById("btnPDF").addEventListener("click",downloadPDF);
+    document.getElementById("btnReset").addEventListener("click",resetAll);
 
-    document.getElementById("emergencyFund").addEventListener("input", updatePreviewAndReport);
-    document.getElementById("planText").addEventListener("input", updatePreviewAndReport);
-    document.getElementById("planAmount").addEventListener("input", updatePreviewAndReport);
-    document.getElementById("planYears").addEventListener("change", updatePreviewAndReport);
-
-    document.getElementById("investment").addEventListener("change", updatePreviewAndReport);
-    document.getElementById("insurance").addEventListener("change", updatePreviewAndReport);
-
-    // buttons
-    document.getElementById("btnAnalyze").addEventListener("click", analyze);
-    document.getElementById("btnOpenModal").addEventListener("click", openModal);
-    document.getElementById("btnCloseModal").addEventListener("click", closeModal);
-    document.getElementById("btnPDF").addEventListener("click", downloadPDF);
-    document.getElementById("btnReset").addEventListener("click", resetAll);
-
-    document.querySelectorAll(".option-btn").forEach(btn => {
-      btn.addEventListener("click", () => selectFocus(btn.dataset.focus));
+    document.querySelectorAll(".option-btn").forEach(btn=>{
+      btn.addEventListener("click",()=>selectFocus(btn.dataset.focus));
     });
 
     syncIncomeLabel();
     updatePreviewAndReport();
   });
 </script>
-
 </body>
 </html>
