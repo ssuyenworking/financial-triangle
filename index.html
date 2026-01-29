@@ -1,185 +1,533 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>理財金三角｜財務結構檢視報告</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>理財金三角｜財務結構檢視</title>
 
-<!-- Chart.js -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<!-- html2pdf -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <!-- html2pdf (前端直接輸出 PDF) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
-<style>
-body { font-family: system-ui; background:#f7f8fa; padding:16px; }
-h1{text-align:center;}
-.subtitle{text-align:center;color:#555;margin-top:-6px;}
-.desc{text-align:center;color:#888;font-size:14px;margin-bottom:12px;}
-.card{background:#fff;border-radius:12px;padding:16px;margin-bottom:16px;box-shadow:0 2px 8px rgba(0,0,0,0.05);}
-label{display:block;margin-top:12px;font-weight:600;}
-input,select,button{width:100%;padding:10px;margin-top:6px;font-size:16px;}
-.primary{background:#1f6fff;color:#fff;border:none;border-radius:8px;}
-.cta{background:#e53935;color:#fff;border:none;border-radius:8px;margin-top:12px;}
-.secondary{background:#4caf50;color:#fff;border:none;border-radius:8px;margin-top:8px;}
-.reset{background:#9e9e9e;color:#fff;border:none;border-radius:8px;margin-top:8px;}
-.switch-group{display:flex;gap:8px;}
-.switch-btn{flex:1;padding:12px;border-radius:8px;border:1px solid #ccc;background:#f2f2f2;}
-.switch-btn.active{background:#1f6fff;color:#fff;border-color:#1f6fff;}
-.result{font-size:18px;line-height:1.6;margin-top:12px}
+  <style>
+    body{
+      font-family: system-ui, -apple-system, BlinkMacSystemFont;
+      background:#f7f8fa;
+      margin:0;
+      padding:16px;
+    }
+    h1{ text-align:center; margin-bottom:6px; }
+    .subtitle{ text-align:center; color:#555; margin-top:0; }
+    .desc{ text-align:center; color:#888; font-size:14px; margin: 8px 0 12px; }
 
-/* Modal */
-.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);}
-.modal-content{background:#fff;margin:10% auto;padding:20px;border-radius:12px;width:90%;max-width:420px;}
-.option-btn{margin-top:8px;border-radius:8px;border:1px solid #ccc;background:#f7f7f7;}
-.small-note{font-size:13px;color:#777;margin-top:12px;}
-</style>
+    .card{
+      background:#fff;
+      border-radius:12px;
+      padding:16px;
+      margin-bottom:16px;
+      box-shadow:0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    label{ display:block; margin-top:12px; font-weight:700; }
+    .sub-label{ font-weight:500; margin-top:8px; color:#333; }
+
+    input, select{
+      width:100%;
+      padding:10px;
+      margin-top:6px;
+      font-size:16px;
+      box-sizing:border-box;
+    }
+
+    button{
+      width:100%;
+      padding:14px;
+      font-size:18px;
+      border:none;
+      border-radius:8px;
+      margin-top:12px;
+      cursor:pointer;
+    }
+    .primary{ background:#1f6fff; color:#fff; }
+    .cta{ background:#e53935; color:#fff; }
+    .secondary{ background:#4caf50; color:#fff; }
+    .reset{ background:#9e9e9e; color:#fff; }
+
+    .switch-group{ display:flex; gap:8px; margin-top:8px; }
+    .switch-btn{
+      flex:1;
+      padding:12px;
+      font-size:16px;
+      border-radius:8px;
+      border:1px solid #ccc;
+      background:#f2f2f2;
+      cursor:pointer;
+    }
+    .switch-btn.active{
+      background:#1f6fff;
+      color:#fff;
+      border-color:#1f6fff;
+    }
+
+    .result{ font-size:18px; line-height:1.6; margin-top:12px; }
+
+    .calc-box{
+      margin-top:12px;
+      padding:12px;
+      border-radius:10px;
+      background:#f2f6ff;
+    }
+    .calc-title{ font-weight:800; margin-bottom:6px; }
+    .calc-row{ display:flex; justify-content:space-between; gap:12px; }
+    .calc-row span{ font-weight:800; }
+
+    /* Modal */
+    .modal{
+      display:none;
+      position:fixed;
+      top:0; left:0;
+      width:100%; height:100%;
+      background:rgba(0,0,0,0.5);
+      z-index:999;
+    }
+    .modal-content{
+      background:#fff;
+      margin:10% auto;
+      padding:18px;
+      border-radius:12px;
+      width:92%;
+      max-width:460px;
+    }
+    .option-btn{
+      width:100%;
+      padding:12px;
+      border-radius:8px;
+      border:1px solid #ccc;
+      background:#f7f7f7;
+      margin-top:8px;
+      font-size:16px;
+      cursor:pointer;
+    }
+
+    /* PDF 排版友善（report區塊） */
+    #reportHeader{
+      margin-bottom:10px;
+      padding-bottom:10px;
+      border-bottom:1px solid #eee;
+    }
+    .report-title{ font-size:20px; font-weight:900; margin:0; }
+    .report-sub{ color:#555; margin:4px 0 0; }
+    .report-meta{ color:#777; font-size:13px; margin-top:8px; line-height:1.5; }
+    .small-note{ font-size:13px; color:#777; margin-top:12px; }
+  </style>
 </head>
 
 <body>
 
-<h1>理財金三角</h1>
-<div class="subtitle">快速看懂你的財務結構</div>
-<div class="desc">不是投資模型，只用來檢視結構是否安全</div>
+  <h1>理財金三角</h1>
+  <div class="subtitle">快速看懂你的財務結構</div>
+  <div class="desc">不是投資模型，只用來檢視結構是否安全（現場填、現場解讀、現場成交）</div>
 
-<div class="card">
-<label>你目前的狀態</label>
-<div class="switch-group">
-<button id="btnStudent" class="switch-btn active" onclick="setUserType('student')">🎓 學生 / 剛出社會</button>
-<button id="btnWorker" class="switch-btn" onclick="setUserType('worker')">💼 一般上班族</button>
-</div>
+  <!-- 輸入區 -->
+  <div class="card">
+    <label>你目前的狀態</label>
+    <div class="switch-group">
+      <button id="btnStudent" class="switch-btn active" type="button">🎓 學生 / 剛出社會</button>
+      <button id="btnWorker" class="switch-btn" type="button">💼 一般上班族</button>
+    </div>
 
-<label>月剩餘（可支配所得）</label>
-<input type="number" id="remaining">
+    <label>客戶代稱（選填，不填也可輸出PDF）</label>
+    <input type="text" id="clientAlias" placeholder="例如：王先生 / 小潔 / A客（避免填身分證、電話等個資）" />
 
-<label>是否有儲蓄（備用金）</label>
-<select id="saving">
-<option value="none">沒有</option>
-<option value="some">有一點</option>
-<option value="stable">可支撐一段時間</option>
-</select>
+    <label>收入輸入方式</label>
+    <select id="incomeType">
+      <option value="month">月收入</option>
+      <option value="year">年收入</option>
+    </select>
 
-<label>是否有 3–5 年內的重要目標</label>
-<select id="goal">
-<option value="no">沒有</option>
-<option value="yes">有</option>
-</select>
+    <label id="incomeLabel">月收入</label>
+    <input type="number" id="incomeAmount" placeholder="例如：45000" inputmode="numeric"/>
 
-<label>是否有投資</label>
-<select id="investment">
-<option value="none">沒有</option>
-<option value="yes">有</option>
-</select>
+    <label>日常開銷（每月，請逐項填寫）</label>
 
-<label>保險狀態</label>
-<select id="insurance">
-<option value="none">沒有</option>
-<option value="partial">不完整</option>
-<option value="basic">基本保障完整</option>
-</select>
+    <div class="sub-label">房租/房貸</div>
+    <input type="number" id="exp_housing" placeholder="0" inputmode="numeric"/>
 
-<button class="primary" onclick="analyze()">分析我的理財金三角</button>
-</div>
+    <div class="sub-label">水電瓦斯/網路手機</div>
+    <input type="number" id="exp_utilities" placeholder="0" inputmode="numeric"/>
 
-<!-- 報告區 -->
-<div class="card" id="report">
-<canvas id="triangleChart"></canvas>
-<div id="summary" class="result"></div>
-<div id="focusResult" class="result"></div>
-<p class="small-note">
-本報告僅為財務結構檢視，不涉及商品、金額或投資報酬建議。
-</p>
-</div>
+    <div class="sub-label">餐飲（外食/買菜）</div>
+    <input type="number" id="exp_food" placeholder="0" inputmode="numeric"/>
 
-<button class="cta" onclick="openModal()">開始基本保障配置說明</button>
-<button class="secondary" onclick="downloadPDF()">下載本次分析報告（PDF）</button>
-<button class="reset" onclick="resetAll()">重設／下一位客戶</button>
+    <div class="sub-label">交通（通勤/油錢/停車）</div>
+    <input type="number" id="exp_transport" placeholder="0" inputmode="numeric"/>
 
-<!-- Modal -->
-<div id="modal" class="modal">
-<div class="modal-content">
-<h3>如果只能先顧好一件事，你現在最在意哪一塊？</h3>
+    <div class="sub-label">教育/育兒（學費/才藝/保母）</div>
+    <input type="number" id="exp_kids" placeholder="0" inputmode="numeric"/>
 
-<button class="option-btn" onclick="selectFocus('life')">生活不中斷</button>
-<button class="option-btn" onclick="selectFocus('family')">不拖累家人</button>
-<button class="option-btn" onclick="selectFocus('future')">未來計畫不被打斷</button>
+    <div class="sub-label">保費（現有保單每月保費）</div>
+    <input type="number" id="exp_insurance" placeholder="0" inputmode="numeric"/>
 
-<p id="talkCard" style="margin-top:12px;"></p>
-<button class="primary" onclick="closeModal()">了解，開始說明</button>
-</div>
-</div>
+    <div class="sub-label">娛樂/購物/社交</div>
+    <input type="number" id="exp_lifestyle" placeholder="0" inputmode="numeric"/>
+
+    <div class="sub-label">其他固定支出</div>
+    <input type="number" id="exp_other" placeholder="0" inputmode="numeric"/>
+
+    <div class="calc-box">
+      <div class="calc-title">系統計算</div>
+      <div class="calc-row">
+        <div>每月日常開銷合計</div>
+        <div><span id="expenseTotal">0</span></div>
+      </div>
+      <div class="calc-row" style="margin-top:6px;">
+        <div>可支配所得（月剩餘）</div>
+        <div><span id="remainingDisplay">0</span></div>
+      </div>
+    </div>
+
+    <label>是否有儲蓄（備用金）</label>
+    <select id="saving">
+      <option value="none">沒有</option>
+      <option value="some">有一點</option>
+      <option value="stable">可支撐一段時間</option>
+    </select>
+
+    <label>是否有 3–5 年內的重要目標（夢想）</label>
+    <select id="goal">
+      <option value="no">沒有特別想過</option>
+      <option value="yes">有</option>
+    </select>
+
+    <label>是否有投資</label>
+    <select id="investment">
+      <option value="none">沒有</option>
+      <option value="yes">有</option>
+    </select>
+
+    <label>保險狀態</label>
+    <select id="insurance">
+      <option value="none">沒有</option>
+      <option value="partial">不完整</option>
+      <option value="basic">基本保障完整</option>
+    </select>
+
+    <button class="primary" id="btnAnalyze" type="button">分析我的理財金三角</button>
+  </div>
+
+  <!-- 報告區（PDF會抓這一塊） -->
+  <div class="card" id="report">
+    <div id="reportHeader">
+      <p class="report-title">理財金三角｜財務結構檢視報告</p>
+      <p class="report-sub">風險 × 準備 × 成長（只看結構，不談報酬）</p>
+      <div class="report-meta">
+        <div>日期：<span id="reportDate"></span></div>
+        <div>客戶代稱：<span id="reportAlias">（未填）</span></div>
+      </div>
+    </div>
+
+    <div class="calc-box" style="background:#f7f7ff;">
+      <div class="calc-title">現況摘要（每月）</div>
+      <div class="calc-row">
+        <div>月收入（換算）</div>
+        <div><span id="reportIncome">0</span></div>
+      </div>
+      <div class="calc-row" style="margin-top:6px;">
+        <div>日常開銷合計</div>
+        <div><span id="reportExpense">0</span></div>
+      </div>
+      <div class="calc-row" style="margin-top:6px;">
+        <div>可支配所得（月剩餘）</div>
+        <div><span id="reportRemaining">0</span></div>
+      </div>
+    </div>
+
+    <canvas id="triangleChart"></canvas>
+    <div id="summary" class="result"></div>
+    <div id="focusResult" class="result"></div>
+
+    <p class="small-note">
+      本報告僅為財務結構檢視，不涉及商品名稱、金額、保額、投資報酬或任何收益承諾。
+      若需進一步方案，將以面談確認需求後另行說明。
+    </p>
+  </div>
+
+  <button class="cta" id="btnOpenModal" type="button">開始基本保障配置說明</button>
+  <button class="secondary" id="btnPDF" type="button">下載本次分析報告（PDF）</button>
+  <button class="reset" id="btnReset" type="button">重設／下一位客戶</button>
+
+  <!-- 成交話術小卡 Modal -->
+  <div id="modal" class="modal">
+    <div class="modal-content">
+      <h3 style="margin:0 0 8px;">如果只能先顧好一件事，你現在最在意哪一塊？</h3>
+
+      <button class="option-btn" type="button" data-focus="life">生活不中斷</button>
+      <button class="option-btn" type="button" data-focus="family">不拖累家人</button>
+      <button class="option-btn" type="button" data-focus="future">未來計畫不被打斷</button>
+
+      <p id="talkCard" style="margin-top:12px; line-height:1.6;"></p>
+
+      <button class="primary" id="btnCloseModal" type="button">了解，開始說明</button>
+    </div>
+  </div>
 
 <script>
-let chart;
-let userType="student";
-let focusText="";
+  // ===== 狀態 =====
+  let chart = null;
+  let userType = "student"; // student / worker
+  let focusText = "";
 
-function setUserType(type){
-userType=type;
-btnStudent.classList.remove("active");
-btnWorker.classList.remove("active");
-(type==="student"?btnStudent:btnWorker).classList.add("active");
-}
+  // ===== 工具函數 =====
+  function n(v){ return Number(v || 0); }
+  function fmt(v){
+    const num = Math.round(Number(v || 0));
+    return num.toLocaleString("zh-Hant-TW");
+  }
 
-function analyze(){
-let safety=insurance.value==="basic"?3:insurance.value==="partial"?2:1;
-let preparation=2;
-if(userType==="student"){
-if(saving.value==="none")preparation=1;
-if(saving.value==="stable")preparation=3;
-}else{
-if(remaining.value<=0)preparation=1;
-if(remaining.value>0&&saving.value!=="none"&&goal.value==="yes")preparation=3;
-}
-let growth=investment.value==="yes"?3:2;
+  function getMonthlyIncome(){
+    const incomeTypeEl = document.getElementById("incomeType");
+    const incomeAmountEl = document.getElementById("incomeAmount");
+    const amount = n(incomeAmountEl.value);
+    if (incomeTypeEl.value === "year") return amount / 12;
+    return amount;
+  }
 
-if(chart)chart.destroy();
-chart=new Chart(triangleChart,{type:"radar",data:{labels:["安全","準備","成長"],datasets:[{data:[safety,preparation,growth]}]},options:{plugins:{legend:{display:false}},scales:{r:{min:0,max:3,ticks:{display:false}}}});
+  function getExpenseTotal(){
+    const ids = [
+      "exp_housing","exp_utilities","exp_food","exp_transport",
+      "exp_kids","exp_insurance","exp_lifestyle","exp_other"
+    ];
+    return ids.reduce((sum, id) => sum + n(document.getElementById(id).value), 0);
+  }
 
-summary.innerText=safety===1
-?"目前最重要的是確保發生狀況時，生活與收入不會被打斷。"
-:"你的財務結構已有基礎，可以一步一步來。";
-}
+  function updateCashflowPreview(){
+    const monthlyIncome = getMonthlyIncome();
+    const expenseTotal = getExpenseTotal();
+    const remaining = monthlyIncome - expenseTotal;
 
-function openModal(){modal.style.display="block";}
-function closeModal(){modal.style.display="none";}
+    document.getElementById("expenseTotal").innerText = fmt(expenseTotal);
+    document.getElementById("remainingDisplay").innerText = fmt(remaining);
 
-function selectFocus(type){
-if(userType==="student"){
-focusText=type==="life"
-?"你選擇的是：生活不中斷。重點是避免意外影響學業與生活。"
-:type==="family"
-?"你選擇的是：不拖累家人。重點是先顧好基本風險。"
-:"你選擇的是：未來計畫不被打斷。先確保風險不影響選擇。";
-}else{
-focusText=type==="life"
-?"你選擇的是：生活不中斷。確保收入與醫療狀況時能維持生活。"
-:type==="family"
-?"你選擇的是：不拖累家人。重點在責任風險的承擔。"
-:"你選擇的是：未來計畫不被打斷。避免一次事件打亂努力。";
-}
-talkCard.innerText=focusText;
-focusResult.innerText=focusText;
-}
+    // 同步到報告區（PDF也會吃到）
+    document.getElementById("reportIncome").innerText = fmt(monthlyIncome);
+    document.getElementById("reportExpense").innerText = fmt(expenseTotal);
+    document.getElementById("reportRemaining").innerText = fmt(remaining);
 
-function downloadPDF(){
-const opt={margin:0.8,filename:"理財金三角_結構檢視報告.pdf",html2canvas:{scale:2},jsPDF:{unit:"cm",format:"a4"}};
-html2pdf().set(opt).from(document.getElementById("report")).save();
-}
+    // 同步代稱
+    const alias = (document.getElementById("clientAlias").value || "").trim();
+    document.getElementById("reportAlias").innerText = alias ? alias : "（未填）";
+  }
 
-function resetAll(){
-remaining.value="";
-saving.value="none";
-goal.value="no";
-investment.value="none";
-insurance.value="none";
-summary.innerText="";
-focusResult.innerText="";
-talkCard.innerText="";
-if(chart){chart.destroy();chart=null;}
-setUserType("student");
-modal.style.display="none";
-}
+  function setUserType(type){
+    userType = type;
+    const btnStudent = document.getElementById("btnStudent");
+    const btnWorker = document.getElementById("btnWorker");
+    btnStudent.classList.remove("active");
+    btnWorker.classList.remove("active");
+    (type === "student" ? btnStudent : btnWorker).classList.add("active");
+  }
+
+  // ===== 分析 =====
+  function analyze(){
+    // 先確保預覽同步
+    updateCashflowPreview();
+
+    const savingEl = document.getElementById("saving");
+    const goalEl = document.getElementById("goal");
+    const investmentEl = document.getElementById("investment");
+    const insuranceEl = document.getElementById("insurance");
+
+    const remaining = getMonthlyIncome() - getExpenseTotal();
+
+    // 安全 Safety
+    let safety = 1;
+    if (insuranceEl.value === "partial") safety = 2;
+    if (insuranceEl.value === "basic") safety = 3;
+
+    // 準備 Preparation
+    let preparation = 2;
+
+    if (userType === "student") {
+      // 學生：只看短期備用金（不談退休、不要求長期目標）
+      if (savingEl.value === "none") preparation = 1;
+      if (savingEl.value === "stable") preparation = 3;
+    } else {
+      // 上班族：看現金流＋儲蓄＋目標
+      if (remaining <= 0) preparation = 1;
+      if (remaining > 0 && savingEl.value !== "none" && goalEl.value === "yes") preparation = 3;
+    }
+
+    // 成長 Growth（不給弱）
+    let growth = investmentEl.value === "yes" ? 3 : 2;
+
+    // 畫圖
+    if (chart) chart.destroy();
+    chart = new Chart(document.getElementById("triangleChart"), {
+      type: "radar",
+      data: {
+        labels: ["安全", "準備", "成長"],
+        datasets: [{
+          data: [safety, preparation, growth],
+          backgroundColor: "rgba(31,111,255,0.2)",
+          borderColor: "#1f6fff",
+          borderWidth: 2
+        }]
+      },
+      options: {
+        plugins: { legend: { display: false } },
+        scales: {
+          r: { min: 0, max: 3, ticks: { display: false } }
+        }
+      }
+    });
+
+    // 解讀文字（更貼近你要的啟蒙＋成交）
+    const summaryEl = document.getElementById("summary");
+
+    if (safety === 1) {
+      summaryEl.innerText = "目前最需要先處理的不是投資或存很多，而是確保發生狀況時，生活與收入不會被打斷。";
+    } else if (userType === "student" && preparation === 1) {
+      summaryEl.innerText = "你現在的關鍵是先準備一點生活備用金，讓臨時需要時不會慌；同時把基本保障顧好，避免影響學業與生活。";
+    } else if (userType === "worker" && preparation === 1) {
+      summaryEl.innerText = "現在的關鍵是讓現金流有更充裕的可運用空間，並把基本保障補齊，避免責任增加時風險沒跟上。";
+    } else {
+      summaryEl.innerText = "你的財務結構已有基礎，可以一步一步來，不需要一次完成；先顧好核心風險，後面再談更長期的安排。";
+    }
+  }
+
+  // ===== 成交話術小卡（客戶可選） =====
+  function openModal(){
+    document.getElementById("modal").style.display = "block";
+  }
+  function closeModal(){
+    document.getElementById("modal").style.display = "none";
+  }
+
+  function selectFocus(type){
+    // 依學生/上班族換語氣
+    if (userType === "student") {
+      if (type === "life") focusText = "你選擇的是：生活不中斷。重點是避免意外或生病影響學業與生活，先把基本風險顧好。";
+      if (type === "family") focusText = "你選擇的是：不拖累家人。先用最基本、負擔得起的方式把風險顧好，避免家人承擔太多壓力。";
+      if (type === "future") focusText = "你選擇的是：未來計畫不被打斷。先把風險顧好，讓學業、工作與未來選擇不會被迫中斷。";
+    } else {
+      if (type === "life") focusText = "你選擇的是：生活不中斷。先確保收入或醫療狀況發生時，生活仍能維持，不用立刻被迫停下來。";
+      if (type === "family") focusText = "你選擇的是：不拖累家人。先把責任風險顧好，避免家人承擔過多壓力，讓照顧更有底氣。";
+      if (type === "future") focusText = "你選擇的是：未來計畫不被打斷。先避免一次事件打亂多年努力，讓規劃能持續往前。";
+    }
+
+    document.getElementById("talkCard").innerText = focusText;
+    document.getElementById("focusResult").innerText = focusText;
+  }
+
+  // ===== PDF =====
+  function todayString(){
+    const d = new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth()+1).padStart(2,"0");
+    const day = String(d.getDate()).padStart(2,"0");
+    return `${y}-${m}-${day}`;
+  }
+
+  function downloadPDF(){
+    // 更新報告頭資訊（日期/代稱/現況摘要）
+    document.getElementById("reportDate").innerText = todayString();
+    updateCashflowPreview();
+
+    const alias = (document.getElementById("clientAlias").value || "").trim();
+    const filenameBase = alias ? `理財金三角_結構檢視報告_${alias}` : "理財金三角_結構檢視報告";
+
+    const opt = {
+      margin: 0.8,
+      filename: `${filenameBase}.pdf`,
+      image: { type: "jpeg", quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: "cm", format: "a4", orientation: "portrait" }
+    };
+
+    html2pdf().set(opt).from(document.getElementById("report")).save();
+  }
+
+  // ===== 重設 =====
+  function resetAll(){
+    document.getElementById("clientAlias").value = "";
+    document.getElementById("incomeType").value = "month";
+    document.getElementById("incomeAmount").value = "";
+
+    const expIds = [
+      "exp_housing","exp_utilities","exp_food","exp_transport",
+      "exp_kids","exp_insurance","exp_lifestyle","exp_other"
+    ];
+    expIds.forEach(id => document.getElementById(id).value = "");
+
+    document.getElementById("saving").value = "none";
+    document.getElementById("goal").value = "no";
+    document.getElementById("investment").value = "none";
+    document.getElementById("insurance").value = "none";
+
+    document.getElementById("summary").innerText = "";
+    document.getElementById("focusResult").innerText = "";
+    document.getElementById("talkCard").innerText = "";
+    focusText = "";
+
+    if (chart) { chart.destroy(); chart = null; }
+
+    setUserType("student");
+    closeModal();
+
+    // 重置收入標籤
+    document.getElementById("incomeLabel").innerText = "月收入";
+
+    updateCashflowPreview();
+    document.getElementById("incomeAmount").focus();
+  }
+
+  // ===== 事件綁定（DOMContentLoaded） =====
+  document.addEventListener("DOMContentLoaded", () => {
+    // 初始日期
+    document.getElementById("reportDate").innerText = todayString();
+
+    // 切換按鈕
+    document.getElementById("btnStudent").addEventListener("click", () => setUserType("student"));
+    document.getElementById("btnWorker").addEventListener("click", () => setUserType("worker"));
+
+    // 收入標籤切換
+    const incomeTypeEl = document.getElementById("incomeType");
+    const incomeLabelEl = document.getElementById("incomeLabel");
+
+    function syncIncomeLabel(){
+      incomeLabelEl.innerText = incomeTypeEl.value === "year" ? "年收入" : "月收入";
+      updateCashflowPreview();
+    }
+    incomeTypeEl.addEventListener("change", syncIncomeLabel);
+
+    // 即時計算綁定
+    document.getElementById("incomeAmount").addEventListener("input", updateCashflowPreview);
+    document.getElementById("clientAlias").addEventListener("input", updateCashflowPreview);
+
+    const expIds = [
+      "exp_housing","exp_utilities","exp_food","exp_transport",
+      "exp_kids","exp_insurance","exp_lifestyle","exp_other"
+    ];
+    expIds.forEach(id => document.getElementById(id).addEventListener("input", updateCashflowPreview));
+
+    // 分析 / 小卡 / PDF / 重設
+    document.getElementById("btnAnalyze").addEventListener("click", analyze);
+    document.getElementById("btnOpenModal").addEventListener("click", openModal);
+    document.getElementById("btnCloseModal").addEventListener("click", closeModal);
+    document.getElementById("btnPDF").addEventListener("click", downloadPDF);
+    document.getElementById("btnReset").addEventListener("click", resetAll);
+
+    // 小卡三選項
+    document.querySelectorAll(".option-btn").forEach(btn => {
+      btn.addEventListener("click", () => selectFocus(btn.dataset.focus));
+    });
+
+    // 初始化計算
+    syncIncomeLabel();
+    updateCashflowPreview();
+  });
 </script>
 
 </body>
