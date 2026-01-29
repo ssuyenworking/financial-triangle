@@ -8,7 +8,7 @@
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-  <!-- html2pdf (前端直接輸出 PDF) -->
+  <!-- html2pdf -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
   <style>
@@ -30,16 +30,23 @@
       box-shadow:0 2px 8px rgba(0,0,0,0.05);
     }
 
-    label{ display:block; margin-top:12px; font-weight:700; }
-    .sub-label{ font-weight:500; margin-top:8px; color:#333; }
+    label{ display:block; margin-top:12px; font-weight:900; }
+    .sub-label{ font-weight:700; margin-top:10px; color:#333; }
+    .hint{
+      font-size:13px;
+      color:#666;
+      margin-top:8px;
+      line-height:1.5;
+    }
 
-    input, select{
+    input, select, textarea{
       width:100%;
       padding:10px;
       margin-top:6px;
       font-size:16px;
       box-sizing:border-box;
     }
+    textarea{ min-height:72px; resize:vertical; }
 
     button{
       width:100%;
@@ -71,7 +78,7 @@
       border-color:#1f6fff;
     }
 
-    .result{ font-size:18px; line-height:1.6; margin-top:12px; }
+    .result{ font-size:18px; line-height:1.6; margin-top:12px; white-space:pre-line; }
 
     .calc-box{
       margin-top:12px;
@@ -79,9 +86,9 @@
       border-radius:10px;
       background:#f2f6ff;
     }
-    .calc-title{ font-weight:800; margin-bottom:6px; }
+    .calc-title{ font-weight:1000; margin-bottom:6px; }
     .calc-row{ display:flex; justify-content:space-between; gap:12px; }
-    .calc-row span{ font-weight:800; }
+    .calc-row span{ font-weight:1000; }
 
     /* Modal */
     .modal{
@@ -111,13 +118,13 @@
       cursor:pointer;
     }
 
-    /* PDF 排版友善（report區塊） */
+    /* Report */
     #reportHeader{
       margin-bottom:10px;
       padding-bottom:10px;
       border-bottom:1px solid #eee;
     }
-    .report-title{ font-size:20px; font-weight:900; margin:0; }
+    .report-title{ font-size:20px; font-weight:1000; margin:0; }
     .report-sub{ color:#555; margin:4px 0 0; }
     .report-meta{ color:#777; font-size:13px; margin-top:8px; line-height:1.5; }
     .small-note{ font-size:13px; color:#777; margin-top:12px; }
@@ -130,7 +137,7 @@
   <div class="subtitle">快速看懂你的財務結構</div>
   <div class="desc">不是投資模型，只用來檢視結構是否安全（現場填、現場解讀、現場成交）</div>
 
-  <!-- 輸入區 -->
+  <!-- Input -->
   <div class="card">
     <label>你目前的狀態</label>
     <div class="switch-group">
@@ -155,6 +162,9 @@
     <div class="sub-label">房租/房貸</div>
     <input type="number" id="exp_housing" placeholder="0" inputmode="numeric"/>
 
+    <div class="sub-label">車貸</div>
+    <input type="number" id="exp_carloan" placeholder="0" inputmode="numeric"/>
+
     <div class="sub-label">水電瓦斯/網路手機</div>
     <input type="number" id="exp_utilities" placeholder="0" inputmode="numeric"/>
 
@@ -177,7 +187,7 @@
     <input type="number" id="exp_other" placeholder="0" inputmode="numeric"/>
 
     <div class="calc-box">
-      <div class="calc-title">系統計算</div>
+      <div class="calc-title">系統計算（現金流）</div>
       <div class="calc-row">
         <div>每月日常開銷合計</div>
         <div><span id="expenseTotal">0</span></div>
@@ -186,19 +196,38 @@
         <div>可支配所得（月剩餘）</div>
         <div><span id="remainingDisplay">0</span></div>
       </div>
+      <div class="hint">
+        可支配所得 = 月收入（換算） - 日常開銷合計
+      </div>
     </div>
 
-    <label>是否有儲蓄（備用金）</label>
-    <select id="saving">
-      <option value="none">沒有</option>
-      <option value="some">有一點</option>
-      <option value="stable">可支撐一段時間</option>
-    </select>
+    <label>緊急預備金（目前已存的金額）</label>
+    <input type="number" id="emergencyFund" placeholder="例如：120000" inputmode="numeric"/>
+    <div class="calc-box" style="background:#f7f7ff;">
+      <div class="calc-title">系統計算（預備金）</div>
+      <div class="calc-row">
+        <div>預備金可支撐（月）</div>
+        <div><span id="fundMonths">0</span></div>
+      </div>
+      <div class="hint">
+        預備金月數 = 緊急預備金 ÷ 每月日常開銷合計  
+        （如果開銷為 0，會先以 0 月顯示）
+      </div>
+    </div>
 
-    <label>是否有 3–5 年內的重要目標（夢想）</label>
-    <select id="goal">
-      <option value="no">沒有特別想過</option>
-      <option value="yes">有</option>
+    <label>3–5 年計畫（請客戶自己填）</label>
+    <div class="sub-label">計畫內容（例如：買車/買房頭期/結婚/出國/創業/進修）</div>
+    <textarea id="planText" placeholder="請描述你的 3–5 年目標（可多項）"></textarea>
+
+    <div class="sub-label">目標金額（估計即可）</div>
+    <input type="number" id="planAmount" placeholder="例如：300000" inputmode="numeric"/>
+
+    <div class="sub-label">預計幾年完成（3–5 年）</div>
+    <select id="planYears">
+      <option value="0">尚未確定</option>
+      <option value="3">3 年</option>
+      <option value="4">4 年</option>
+      <option value="5">5 年</option>
     </select>
 
     <label>是否有投資</label>
@@ -217,11 +246,11 @@
     <button class="primary" id="btnAnalyze" type="button">分析我的理財金三角</button>
   </div>
 
-  <!-- 報告區（PDF會抓這一塊） -->
+  <!-- Report -->
   <div class="card" id="report">
     <div id="reportHeader">
       <p class="report-title">理財金三角｜財務結構檢視報告</p>
-      <p class="report-sub">風險 × 準備 × 成長（只看結構，不談報酬）</p>
+      <p class="report-sub">安全 × 準備 × 成長（只看結構，不談報酬）</p>
       <div class="report-meta">
         <div>日期：<span id="reportDate"></span></div>
         <div>客戶代稱：<span id="reportAlias">（未填）</span></div>
@@ -242,11 +271,33 @@
         <div>可支配所得（月剩餘）</div>
         <div><span id="reportRemaining">0</span></div>
       </div>
+      <div class="calc-row" style="margin-top:6px;">
+        <div>緊急預備金</div>
+        <div><span id="reportFund">0</span></div>
+      </div>
+      <div class="calc-row" style="margin-top:6px;">
+        <div>預備金可支撐（月）</div>
+        <div><span id="reportFundMonths">0</span></div>
+      </div>
     </div>
 
-    <canvas id="triangleChart"></canvas>
+    <div class="calc-box" style="background:#fff7f2;">
+      <div class="calc-title">3–5 年計畫</div>
+      <div class="hint" style="margin-top:0;">
+        內容：<span id="reportPlanText">（未填）</span><br/>
+        目標金額：<span id="reportPlanAmount">0</span><br/>
+        年限：<span id="reportPlanYears">尚未確定</span>
+      </div>
+    </div>
+
+    <!-- Chart small -->
+    <div style="max-width:360px;margin:0 auto;">
+      <canvas id="triangleChart" height="260"></canvas>
+    </div>
+
     <div id="summary" class="result"></div>
     <div id="focusResult" class="result"></div>
+    <div id="nextStep" class="result" style="background:#f7f7ff;padding:12px;border-radius:10px;"></div>
 
     <p class="small-note">
       本報告僅為財務結構檢視，不涉及商品名稱、金額、保額、投資報酬或任何收益承諾。
@@ -258,7 +309,7 @@
   <button class="secondary" id="btnPDF" type="button">下載本次分析報告（PDF）</button>
   <button class="reset" id="btnReset" type="button">重設／下一位客戶</button>
 
-  <!-- 成交話術小卡 Modal -->
+  <!-- Modal -->
   <div id="modal" class="modal">
     <div class="modal-content">
       <h3 style="margin:0 0 8px;">如果只能先顧好一件事，你現在最在意哪一塊？</h3>
@@ -274,16 +325,23 @@
   </div>
 
 <script>
-  // ===== 狀態 =====
+  // ===== State =====
   let chart = null;
-  let userType = "student"; // student / worker
+  let userType = "student";
   let focusText = "";
 
-  // ===== 工具函數 =====
+  // ===== Helpers =====
   function n(v){ return Number(v || 0); }
   function fmt(v){
     const num = Math.round(Number(v || 0));
     return num.toLocaleString("zh-Hant-TW");
+  }
+  function todayString(){
+    const d = new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth()+1).padStart(2,"0");
+    const day = String(d.getDate()).padStart(2,"0");
+    return `${y}-${m}-${day}`;
   }
 
   function getMonthlyIncome(){
@@ -296,13 +354,37 @@
 
   function getExpenseTotal(){
     const ids = [
-      "exp_housing","exp_utilities","exp_food","exp_transport",
+      "exp_housing","exp_carloan","exp_utilities","exp_food","exp_transport",
       "exp_kids","exp_insurance","exp_lifestyle","exp_other"
     ];
     return ids.reduce((sum, id) => sum + n(document.getElementById(id).value), 0);
   }
 
-  function updateCashflowPreview(){
+  function getEmergencyFund(){
+    return n(document.getElementById("emergencyFund").value);
+  }
+
+  function getFundMonths(){
+    const expense = getExpenseTotal();
+    const fund = getEmergencyFund();
+    if (expense <= 0) return 0;
+    return fund / expense;
+  }
+
+  function getPlan(){
+    const text = (document.getElementById("planText").value || "").trim();
+    const amount = n(document.getElementById("planAmount").value);
+    const years = n(document.getElementById("planYears").value);
+    return { text, amount, years };
+  }
+
+  function updatePreviewAndReport(){
+    // Report header
+    document.getElementById("reportDate").innerText = todayString();
+    const alias = (document.getElementById("clientAlias").value || "").trim();
+    document.getElementById("reportAlias").innerText = alias ? alias : "（未填）";
+
+    // Cashflow
     const monthlyIncome = getMonthlyIncome();
     const expenseTotal = getExpenseTotal();
     const remaining = monthlyIncome - expenseTotal;
@@ -310,14 +392,22 @@
     document.getElementById("expenseTotal").innerText = fmt(expenseTotal);
     document.getElementById("remainingDisplay").innerText = fmt(remaining);
 
-    // 同步到報告區（PDF也會吃到）
     document.getElementById("reportIncome").innerText = fmt(monthlyIncome);
     document.getElementById("reportExpense").innerText = fmt(expenseTotal);
     document.getElementById("reportRemaining").innerText = fmt(remaining);
 
-    // 同步代稱
-    const alias = (document.getElementById("clientAlias").value || "").trim();
-    document.getElementById("reportAlias").innerText = alias ? alias : "（未填）";
+    // Fund
+    const fund = getEmergencyFund();
+    const fm = getFundMonths();
+    document.getElementById("fundMonths").innerText = fm ? fm.toFixed(1) : "0";
+    document.getElementById("reportFund").innerText = fmt(fund);
+    document.getElementById("reportFundMonths").innerText = fm ? fm.toFixed(1) : "0";
+
+    // Plan
+    const plan = getPlan();
+    document.getElementById("reportPlanText").innerText = plan.text ? plan.text : "（未填）";
+    document.getElementById("reportPlanAmount").innerText = fmt(plan.amount);
+    document.getElementById("reportPlanYears").innerText = plan.years ? `${plan.years} 年` : "尚未確定";
   }
 
   function setUserType(type){
@@ -329,40 +419,58 @@
     (type === "student" ? btnStudent : btnWorker).classList.add("active");
   }
 
-  // ===== 分析 =====
-  function analyze(){
-    // 先確保預覽同步
-    updateCashflowPreview();
-
-    const savingEl = document.getElementById("saving");
-    const goalEl = document.getElementById("goal");
-    const investmentEl = document.getElementById("investment");
+  // ===== Scoring (0~3) =====
+  function scoreSafety(){
     const insuranceEl = document.getElementById("insurance");
+    if (insuranceEl.value === "basic") return 3;
+    if (insuranceEl.value === "partial") return 2;
+    return 1;
+  }
 
+  function scorePreparation(){
     const remaining = getMonthlyIncome() - getExpenseTotal();
+    const fundMonths = getFundMonths();
+    const plan = getPlan();
 
-    // 安全 Safety
-    let safety = 1;
-    if (insuranceEl.value === "partial") safety = 2;
-    if (insuranceEl.value === "basic") safety = 3;
+    // Plan completeness: text + (amount or years) gives more weight
+    const hasPlanText = !!plan.text;
+    const hasPlanNumbers = (plan.amount > 0) || (plan.years > 0);
 
-    // 準備 Preparation
-    let preparation = 2;
-
+    // Student: fund months dominates
     if (userType === "student") {
-      // 學生：只看短期備用金（不談退休、不要求長期目標）
-      if (savingEl.value === "none") preparation = 1;
-      if (savingEl.value === "stable") preparation = 3;
-    } else {
-      // 上班族：看現金流＋儲蓄＋目標
-      if (remaining <= 0) preparation = 1;
-      if (remaining > 0 && savingEl.value !== "none" && goalEl.value === "yes") preparation = 3;
+      if (fundMonths >= 2) return 3;      // 2個月以上很不錯
+      if (fundMonths > 0) return 2;       // 有預備金
+      return 1;                           // 沒預備金
     }
 
-    // 成長 Growth（不給弱）
-    let growth = investmentEl.value === "yes" ? 3 : 2;
+    // Worker: cashflow + fund months + plan completeness
+    // baseline
+    let score = 1;
 
-    // 畫圖
+    if (remaining > 0) score = 2;
+    if (remaining > 0 && fundMonths >= 3) score = 3;
+
+    // If plan is clear, boost within reason
+    if (hasPlanText && hasPlanNumbers) {
+      score = Math.min(3, score + 1);
+    }
+
+    return Math.max(1, Math.min(3, score));
+  }
+
+  function scoreGrowth(){
+    const investmentEl = document.getElementById("investment");
+    return investmentEl.value === "yes" ? 3 : 2; // 不給弱
+  }
+
+  // ===== Analyze =====
+  function analyze(){
+    updatePreviewAndReport();
+
+    const safety = scoreSafety();
+    const preparation = scorePreparation();
+    const growth = scoreGrowth();
+
     if (chart) chart.destroy();
     chart = new Chart(document.getElementById("triangleChart"), {
       type: "radar",
@@ -376,99 +484,168 @@
         }]
       },
       options: {
+        maintainAspectRatio: false,
         plugins: { legend: { display: false } },
-        scales: {
-          r: { min: 0, max: 3, ticks: { display: false } }
-        }
+        scales: { r: { min: 0, max: 3, ticks: { display: false } } }
       }
     });
 
-    // 解讀文字（更貼近你要的啟蒙＋成交）
     const summaryEl = document.getElementById("summary");
+    const nextStepEl = document.getElementById("nextStep");
 
+    const remaining = getMonthlyIncome() - getExpenseTotal();
+    const fm = getFundMonths();
+    const plan = getPlan();
+
+    // Summary
     if (safety === 1) {
       summaryEl.innerText = "目前最需要先處理的不是投資或存很多，而是確保發生狀況時，生活與收入不會被打斷。";
-    } else if (userType === "student" && preparation === 1) {
-      summaryEl.innerText = "你現在的關鍵是先準備一點生活備用金，讓臨時需要時不會慌；同時把基本保障顧好，避免影響學業與生活。";
-    } else if (userType === "worker" && preparation === 1) {
-      summaryEl.innerText = "現在的關鍵是讓現金流有更充裕的可運用空間，並把基本保障補齊，避免責任增加時風險沒跟上。";
+    } else if (preparation === 1) {
+      if (userType === "student") {
+        summaryEl.innerText = "你現在的關鍵是先建立緊急預備金，讓臨時需要時不會慌；同時把基本保障顧好，避免影響學業與生活。";
+      } else {
+        summaryEl.innerText = "你現在的關鍵是把現金流與緊急預備金拉起來，並把基本保障補齊，避免責任增加時風險沒跟上。";
+      }
     } else {
       summaryEl.innerText = "你的財務結構已有基礎，可以一步一步來，不需要一次完成；先顧好核心風險，後面再談更長期的安排。";
     }
+
+    // Next step default
+    const fundLine = (getExpenseTotal() > 0)
+      ? `你目前預備金約可撐 ${fm ? fm.toFixed(1) : "0"} 個月。`
+      : "你目前尚未輸入日常開銷，預備金月數暫無法計算。";
+
+    const planLine = plan.text
+      ? `你的 3–5 年計畫：${plan.text}${plan.amount>0?`（約 ${fmt(plan.amount)}）`:""}${plan.years>0?`，目標 ${plan.years} 年內完成。`:""}`
+      : "你目前尚未填寫 3–5 年計畫（建議先寫下目標內容與大概金額）。";
+
+    nextStepEl.innerText =
+      "下一步建議（先建立基本盤）：\n" +
+      `• ${fundLine}\n` +
+      `• ${planLine}\n\n` +
+      "1) 先確認醫療/意外是否足夠（避免突發事件打亂生活）\n" +
+      "2) 再看是否需要責任型保障（對家庭/未來的承擔）\n" +
+      "3) 最後才談更長期的安排（分階段完成）";
+
+    // Clear focus section if not chosen yet
+    document.getElementById("focusResult").innerText = "";
   }
 
-  // ===== 成交話術小卡（客戶可選） =====
-  function openModal(){
-    document.getElementById("modal").style.display = "block";
-  }
-  function closeModal(){
-    document.getElementById("modal").style.display = "none";
-  }
+  // ===== Modal =====
+  function openModal(){ document.getElementById("modal").style.display = "block"; }
+  function closeModal(){ document.getElementById("modal").style.display = "none"; }
 
   function selectFocus(type){
-    // 依學生/上班族換語氣
+    const focusResultEl = document.getElementById("focusResult");
+    const talkCardEl = document.getElementById("talkCard");
+    const nextStepEl = document.getElementById("nextStep");
+
     if (userType === "student") {
-      if (type === "life") focusText = "你選擇的是：生活不中斷。重點是避免意外或生病影響學業與生活，先把基本風險顧好。";
-      if (type === "family") focusText = "你選擇的是：不拖累家人。先用最基本、負擔得起的方式把風險顧好，避免家人承擔太多壓力。";
-      if (type === "future") focusText = "你選擇的是：未來計畫不被打斷。先把風險顧好，讓學業、工作與未來選擇不會被迫中斷。";
+      if (type === "life") focusText = "你選擇的是：生活不中斷。重點是避免意外或生病影響學業與生活。";
+      if (type === "family") focusText = "你選擇的是：不拖累家人。先用最基本、負擔得起的方式把風險顧好。";
+      if (type === "future") focusText = "你選擇的是：未來計畫不被打斷。先顧好風險，讓選擇不會被迫中斷。";
+
+      nextStepEl.innerText =
+        "下一步建議（具體說明重點）：\n" +
+        "1) 基本醫療保障（住院、手術）\n" +
+        "2) 意外保障（突發事件不影響學業/生活）\n" +
+        "3) 小額壽險（保護未來選擇權）\n\n" +
+        "原則：保費負擔輕、不鎖長期、先顧風險不談投資。";
+
     } else {
-      if (type === "life") focusText = "你選擇的是：生活不中斷。先確保收入或醫療狀況發生時，生活仍能維持，不用立刻被迫停下來。";
-      if (type === "family") focusText = "你選擇的是：不拖累家人。先把責任風險顧好，避免家人承擔過多壓力，讓照顧更有底氣。";
-      if (type === "future") focusText = "你選擇的是：未來計畫不被打斷。先避免一次事件打亂多年努力，讓規劃能持續往前。";
+      if (type === "life") focusText = "你選擇的是：生活不中斷。重點在避免收入中斷影響生活。";
+      if (type === "family") focusText = "你選擇的是：不拖累家人。重點在責任風險的承擔。";
+      if (type === "future") focusText = "你選擇的是：未來計畫不被打斷。避免一次事件打亂多年努力。";
+
+      nextStepEl.innerText =
+        "下一步建議（具體說明重點）：\n" +
+        "1) 基本醫療與意外（避免收入中斷）\n" +
+        "2) 壽險責任保障（對家人負責）\n" +
+        "3) 視現金流補強長期保障（分階段完成）\n\n" +
+        "原則：不影響生活品質、分階段完成、先穩定再擴大。";
     }
 
-    document.getElementById("talkCard").innerText = focusText;
-    document.getElementById("focusResult").innerText = focusText;
+    talkCardEl.innerText = focusText;
+    focusResultEl.innerText = focusText;
   }
 
-  // ===== PDF =====
-  function todayString(){
-    const d = new Date();
-    const y = d.getFullYear();
-    const m = String(d.getMonth()+1).padStart(2,"0");
-    const day = String(d.getDate()).padStart(2,"0");
-    return `${y}-${m}-${day}`;
-  }
-
+  // ===== PDF (canvas -> img to avoid blank) =====
   function downloadPDF(){
-    // 更新報告頭資訊（日期/代稱/現況摘要）
-    document.getElementById("reportDate").innerText = todayString();
-    updateCashflowPreview();
+    const summaryText = (document.getElementById("summary").innerText || "").trim();
+    if (!summaryText) {
+      alert("請先按「分析我的理財金三角」產生報告內容，再下載 PDF。");
+      return;
+    }
+
+    updatePreviewAndReport();
 
     const alias = (document.getElementById("clientAlias").value || "").trim();
     const filenameBase = alias ? `理財金三角_結構檢視報告_${alias}` : "理財金三角_結構檢視報告";
 
-    const opt = {
-      margin: 0.8,
-      filename: `${filenameBase}.pdf`,
-      image: { type: "jpeg", quality: 0.98 },
-      html2canvas: { scale: 2 },
-      jsPDF: { unit: "cm", format: "a4", orientation: "portrait" }
-    };
+    const canvas = document.getElementById("triangleChart");
+    const dataUrl = canvas.toDataURL("image/png", 1.0);
 
-    html2pdf().set(opt).from(document.getElementById("report")).save();
+    const img = document.createElement("img");
+    img.src = dataUrl;
+    img.style.width = "100%";
+    img.style.maxWidth = "360px";
+    img.style.display = "block";
+    img.style.margin = "0 auto";
+
+    const wrapper = canvas.parentElement;
+    const canvasDisplayBackup = canvas.style.display;
+    canvas.style.display = "none";
+    wrapper.appendChild(img);
+
+    requestAnimationFrame(() => {
+      const opt = {
+        margin: 0.8,
+        filename: `${filenameBase}.pdf`,
+        image: { type: "jpeg", quality: 0.98 },
+        html2canvas: { scale: 2, backgroundColor: "#ffffff", useCORS: true },
+        jsPDF: { unit: "cm", format: "a4", orientation: "portrait" }
+      };
+
+      html2pdf()
+        .set(opt)
+        .from(document.getElementById("report"))
+        .save()
+        .then(() => {
+          img.remove();
+          canvas.style.display = canvasDisplayBackup || "block";
+        })
+        .catch(() => {
+          img.remove();
+          canvas.style.display = canvasDisplayBackup || "block";
+          alert("PDF 產生失敗，請再試一次（建議用 Chrome）。");
+        });
+    });
   }
 
-  // ===== 重設 =====
+  // ===== Reset =====
   function resetAll(){
     document.getElementById("clientAlias").value = "";
     document.getElementById("incomeType").value = "month";
     document.getElementById("incomeAmount").value = "";
 
     const expIds = [
-      "exp_housing","exp_utilities","exp_food","exp_transport",
+      "exp_housing","exp_carloan","exp_utilities","exp_food","exp_transport",
       "exp_kids","exp_insurance","exp_lifestyle","exp_other"
     ];
     expIds.forEach(id => document.getElementById(id).value = "");
 
-    document.getElementById("saving").value = "none";
-    document.getElementById("goal").value = "no";
+    document.getElementById("emergencyFund").value = "";
+    document.getElementById("planText").value = "";
+    document.getElementById("planAmount").value = "";
+    document.getElementById("planYears").value = "0";
+
     document.getElementById("investment").value = "none";
     document.getElementById("insurance").value = "none";
 
     document.getElementById("summary").innerText = "";
     document.getElementById("focusResult").innerText = "";
     document.getElementById("talkCard").innerText = "";
+    document.getElementById("nextStep").innerText = "";
     focusText = "";
 
     if (chart) { chart.destroy(); chart = null; }
@@ -476,57 +653,61 @@
     setUserType("student");
     closeModal();
 
-    // 重置收入標籤
     document.getElementById("incomeLabel").innerText = "月收入";
+    document.getElementById("reportDate").innerText = todayString();
 
-    updateCashflowPreview();
+    updatePreviewAndReport();
     document.getElementById("incomeAmount").focus();
   }
 
-  // ===== 事件綁定（DOMContentLoaded） =====
+  // ===== Bindings =====
   document.addEventListener("DOMContentLoaded", () => {
-    // 初始日期
     document.getElementById("reportDate").innerText = todayString();
 
-    // 切換按鈕
+    // user type
     document.getElementById("btnStudent").addEventListener("click", () => setUserType("student"));
     document.getElementById("btnWorker").addEventListener("click", () => setUserType("worker"));
 
-    // 收入標籤切換
+    // income label
     const incomeTypeEl = document.getElementById("incomeType");
     const incomeLabelEl = document.getElementById("incomeLabel");
-
     function syncIncomeLabel(){
       incomeLabelEl.innerText = incomeTypeEl.value === "year" ? "年收入" : "月收入";
-      updateCashflowPreview();
+      updatePreviewAndReport();
     }
     incomeTypeEl.addEventListener("change", syncIncomeLabel);
 
-    // 即時計算綁定
-    document.getElementById("incomeAmount").addEventListener("input", updateCashflowPreview);
-    document.getElementById("clientAlias").addEventListener("input", updateCashflowPreview);
+    // realtime preview
+    document.getElementById("clientAlias").addEventListener("input", updatePreviewAndReport);
+    document.getElementById("incomeAmount").addEventListener("input", updatePreviewAndReport);
 
     const expIds = [
-      "exp_housing","exp_utilities","exp_food","exp_transport",
+      "exp_housing","exp_carloan","exp_utilities","exp_food","exp_transport",
       "exp_kids","exp_insurance","exp_lifestyle","exp_other"
     ];
-    expIds.forEach(id => document.getElementById(id).addEventListener("input", updateCashflowPreview));
+    expIds.forEach(id => document.getElementById(id).addEventListener("input", updatePreviewAndReport));
 
-    // 分析 / 小卡 / PDF / 重設
+    document.getElementById("emergencyFund").addEventListener("input", updatePreviewAndReport);
+    document.getElementById("planText").addEventListener("input", updatePreviewAndReport);
+    document.getElementById("planAmount").addEventListener("input", updatePreviewAndReport);
+    document.getElementById("planYears").addEventListener("change", updatePreviewAndReport);
+
+    document.getElementById("investment").addEventListener("change", updatePreviewAndReport);
+    document.getElementById("insurance").addEventListener("change", updatePreviewAndReport);
+
+    // buttons
     document.getElementById("btnAnalyze").addEventListener("click", analyze);
     document.getElementById("btnOpenModal").addEventListener("click", openModal);
     document.getElementById("btnCloseModal").addEventListener("click", closeModal);
     document.getElementById("btnPDF").addEventListener("click", downloadPDF);
     document.getElementById("btnReset").addEventListener("click", resetAll);
 
-    // 小卡三選項
     document.querySelectorAll(".option-btn").forEach(btn => {
       btn.addEventListener("click", () => selectFocus(btn.dataset.focus));
     });
 
-    // 初始化計算
     syncIncomeLabel();
-    updateCashflowPreview();
+    updatePreviewAndReport();
   });
 </script>
 
