@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>理財金三角｜現場成交版</title>
+  <title>理財金三角｜財務結構檢視</title>
 
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -39,6 +39,9 @@
     .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
     @media (max-width:720px){ .grid-2{grid-template-columns:1fr} }
 
+    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    @media (max-width:720px){ .two-col{grid-template-columns:1fr} }
+
     .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);z-index:999}
     .modal-content{background:#fff;margin:8% auto;padding:18px;border-radius:12px;width:92%;max-width:520px}
     .option-btn{width:100%;padding:12px;border-radius:8px;border:1px solid #ccc;background:#f7f7f7;margin-top:8px;font-size:16px;cursor:pointer}
@@ -50,27 +53,20 @@
     .report-meta{color:#777;font-size:13px;margin-top:8px;line-height:1.5}
     .small-note{font-size:13px;color:#777;margin-top:12px}
 
-    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-    @media (max-width:720px){ .two-col{grid-template-columns:1fr} }
-
     .card-mini{background:#fafafa;border:1px solid #eee;border-radius:10px;padding:12px;margin-top:10px}
     .card-mini-title{font-weight:1000;margin:0 0 6px}
-    .tag{display:inline-block;font-size:12px;font-weight:900;padding:4px 8px;border-radius:999px;background:#eee;margin-top:6px}
-    .tag.good{background:#e7f7ee}
-    .tag.warn{background:#fff2df}
-    .tag.bad{background:#ffe6e6}
   </style>
 </head>
 
 <body>
   <h1>理財金三角</h1>
-  <div class="subtitle">現場成交版：財務結構檢視</div>
-  <div class="desc">填寫 → 分析 → 選客戶最重視 → 二選一版本 → 顯示成交話術小卡 → 可下載PDF</div>
+  <div class="subtitle">現場填寫版：財務結構檢視</div>
+  <div class="desc">填寫 → 分析 → 選你最重視 → 二選一建議版本 → 顯示「討論小卡」 → 可下載PDF</div>
 
   <!-- Input -->
   <div class="card">
     <label>客戶代稱（選填）</label>
-    <input type="text" id="clientAlias" placeholder="例如：王先生 / 陳小姐 / A客（避免填身分證、電話等個資）" />
+    <input type="text" id="clientAlias" placeholder="例如：王先生 / 小潔 / A客（避免填身分證、電話等個資）" />
 
     <label>年齡</label>
     <input type="number" id="clientAge" placeholder="例如：28" inputmode="numeric"/>
@@ -119,7 +115,7 @@
     <div class="sub-label">其他固定支出</div>
     <input type="number" id="exp_other" placeholder="0" inputmode="numeric"/>
 
-    <!-- Insurance -->
+    <!-- Insurance money -->
     <label>保險（客戶自行填寫）</label>
     <div class="grid-2">
       <div>
@@ -132,6 +128,7 @@
       </div>
     </div>
 
+    <!-- Cashflow -->
     <div class="calc-box">
       <div class="calc-title">系統計算（現金流）</div>
       <div class="calc-row"><div>每月日常開銷合計（含保費）</div><div><span id="expenseTotal">0</span></div></div>
@@ -151,7 +148,7 @@
     </div>
 
     <!-- Plan -->
-    <label>3–5 年計畫（請客戶自己填）</label>
+    <label>3–5 年計畫（請自己填）</label>
     <div class="sub-label">計畫內容（可多項）</div>
     <textarea id="planText" placeholder="例如：結婚、買車、進修、出國、創業、房屋頭期款..."></textarea>
     <div class="grid-2">
@@ -171,7 +168,7 @@
     </div>
 
     <!-- Investment -->
-    <label>投資（客戶自行填寫）</label>
+    <label>投資（自行填寫）</label>
     <div class="grid-2">
       <div>
         <div class="sub-label">每月投資金額（大約即可）</div>
@@ -179,17 +176,41 @@
       </div>
       <div>
         <div class="sub-label">投資方式（可多選，或備註）</div>
-        <input type="text" id="investmentMethods" placeholder="例如：定期定額ETF/基金/股票/儲蓄/加密/其他…" />
+        <input type="text" id="investmentMethods" placeholder="例如：定期定額ETF/基金/股票/儲蓄/其他…" />
       </div>
     </div>
 
-    <!-- Protection self-check -->
-    <label>保障自評（只用於結構判讀）</label>
-    <select id="insuranceStatus">
-      <option value="none">沒有/很少</option>
-      <option value="partial">有但不完整</option>
-      <option value="basic">覺得基本保障完整</option>
-    </select>
+    <!-- Protection detail -->
+    <label>保障模組清單（用於估算保障完整度）</label>
+    <div class="hint">請勾選目前「確定有」的保障類型（不確定就先不要勾）。</div>
+
+    <div class="two-col">
+      <label style="font-weight:700;margin-top:8px;">
+        <input type="checkbox" id="cov_medical"> 醫療（住院/手術/實支）
+      </label>
+      <label style="font-weight:700;margin-top:8px;">
+        <input type="checkbox" id="cov_accident"> 意外
+      </label>
+      <label style="font-weight:700;margin-top:8px;">
+        <input type="checkbox" id="cov_cancer"> 癌症
+      </label>
+      <label style="font-weight:700;margin-top:8px;">
+        <input type="checkbox" id="cov_ci"> 重大傷病
+      </label>
+      <label style="font-weight:700;margin-top:8px;">
+        <input type="checkbox" id="cov_ltc"> 長照
+      </label>
+      <label style="font-weight:700;margin-top:8px;">
+        <input type="checkbox" id="cov_life"> 壽險責任（家庭/房貸）
+      </label>
+    </div>
+
+    <div class="calc-box" style="background:#f7fff7;">
+      <div class="calc-title">系統計算（保障完整度）</div>
+      <div class="calc-row"><div>已具備模組數</div><div><span id="covCount">0</span> / 6</div></div>
+      <div class="calc-row" style="margin-top:6px;"><div>保障完整度</div><div><span id="covStatus" class="status-chip">尚未評估</span></div></div>
+      <div class="hint" id="covHint">勾選後，系統會提示優先補強方向。</div>
+    </div>
 
     <button class="primary" id="btnAnalyze" type="button">分析我的理財金三角</button>
   </div>
@@ -219,11 +240,21 @@
       <div class="calc-row" style="margin-top:6px;"><div>預備金可支撐（月）</div><div><span id="reportFundMonths">0</span></div></div>
       <div class="calc-row" style="margin-top:6px;"><div>預備金狀態</div><div><span id="reportFundStatus">尚未評估</span></div></div>
 
-      <div class="calc-row" style="margin-top:6px;"><div>每月保費（客戶填）</div><div><span id="reportInsMonthly">0</span></div></div>
+      <div class="calc-row" style="margin-top:6px;"><div>每月保費（自行填）</div><div><span id="reportInsMonthly">0</span></div></div>
       <div class="calc-row" style="margin-top:6px;"><div>保險備註</div><div><span id="reportInsNote">—</span></div></div>
 
-      <div class="calc-row" style="margin-top:6px;"><div>每月投資金額（客戶填）</div><div><span id="reportInvMonthly">0</span></div></div>
-      <div class="calc-row" style="margin-top:6px;"><div>投資方式（客戶填）</div><div><span id="reportInvMethods">—</span></div></div>
+      <div class="calc-row" style="margin-top:6px;"><div>每月投資金額（自行填）</div><div><span id="reportInvMonthly">0</span></div></div>
+      <div class="calc-row" style="margin-top:6px;"><div>投資方式（自行填）</div><div><span id="reportInvMethods">—</span></div></div>
+    </div>
+
+    <!-- Coverage list in report -->
+    <div class="calc-box" style="background:#f7fff7;">
+      <div class="calc-title">保障清單（模組勾選）</div>
+      <div class="hint" style="margin-top:0;">
+        已具備：<span id="reportCovHas">（未勾選）</span><br/>
+        未具備：<span id="reportCovMissing">—</span><br/>
+        保障完整度：<span id="reportCovStatus">尚未評估</span>
+      </div>
     </div>
 
     <div class="calc-box" style="background:#fff7f2;">
@@ -243,7 +274,7 @@
     <div id="focusResult" class="result"></div>
 
     <div class="card-mini" id="dealBox" style="display:none;">
-      <p class="card-mini-title">成交話術小卡</p>
+      <p class="card-mini-title">討論小卡（下一步怎麼做）</p>
       <div class="pill" id="dealPill">版本：—</div>
       <div class="hint" id="dealScript" style="margin-top:10px;"></div>
     </div>
@@ -256,7 +287,7 @@
     </p>
   </div>
 
-  <button class="cta" id="btnOpenFocus" type="button">成交按鈕：先選客戶最重視的</button>
+  <button class="cta" id="btnOpenFocus" type="button">下一步：選你最重視的</button>
   <button class="secondary" id="btnPDF" type="button">下載本次分析報告（PDF）</button>
   <button class="reset" id="btnReset" type="button">重設／下一位客戶</button>
 
@@ -268,7 +299,7 @@
       <button class="option-btn" type="button" data-focus="family">不拖累家人</button>
       <button class="option-btn" type="button" data-focus="future">未來計畫不被打斷</button>
       <p id="focusTalk" style="margin-top:12px;line-height:1.6;"></p>
-      <button class="primary" id="btnToDeal" type="button">下一步：二選一版本</button>
+      <button class="primary" id="btnToDeal" type="button">下一步：二選一建議版本</button>
       <button class="reset" id="btnCloseFocus" type="button">先不要</button>
     </div>
   </div>
@@ -276,12 +307,12 @@
   <!-- Deal Modal (A/B) -->
   <div id="dealModal" class="modal">
     <div class="modal-content">
-      <h3 style="margin:0 0 8px;">二選一：你要先做哪個版本？</h3>
-      <div class="hint">建議做法：先用 A 低負擔先卡位，讓客戶「先有防護」。願意的客戶再做 B 完整到位。</div>
+      <h3 style="margin:0 0 8px;">二選一：你希望先採用哪種建議版本？</h3>
+      <div class="hint">建議做法：先用 A 低負擔先卡位，讓自己「先有基本防護」。願意的話，再做 B 完整到位。</div>
 
       <button class="option-btn" type="button" data-deal="A">
-        A｜低負擔先卡位（先成交）
-        <div class="hint">先把「最重要那一塊」做到位，成本最低、速度最快。</div>
+        A｜低負擔先卡位（先把最重要那一塊做到位）
+        <div class="hint">成本較低、速度最快，適合先建立基本防護。</div>
       </button>
 
       <button class="option-btn" type="button" data-deal="B">
@@ -329,7 +360,7 @@
   function getExpenseTotal(){
     const ids=["exp_housing","exp_carloan","exp_utilities","exp_food","exp_transport","exp_kids","exp_lifestyle","exp_other"];
     const base=ids.reduce((s,id)=>s+n(document.getElementById(id).value),0);
-    return base + getInsuranceMonthly(); // 保費算進開銷
+    return base + getInsuranceMonthly(); // 保費算入開銷
   }
 
   function getEmergencyFund(){ return n(document.getElementById("emergencyFund").value); }
@@ -354,12 +385,33 @@
     return "無（免房租）";
   }
 
-  // Single thresholds (no student/worker)
+  // Single thresholds
   function fundStatus(fm){
     if(fm>=6) return {label:"很穩 ✅", msg:"預備金 ≥6 個月：現金流遇到變動也比較扛得住。", level:"good"};
     if(fm>=3) return {label:"足夠 👍", msg:"預備金 3–6 個月：基本安全邊際不錯。", level:"good"};
     if(fm>=1) return {label:"尚可 ⚠️", msg:"預備金 1–3 個月：尚可，但收入中斷時壓力會上來。", level:"warn"};
     return {label:"不足 ❗", msg:"預備金 <1 個月：偏不足，建議先拉到至少 1–3 個月。", level:"bad"};
+  }
+
+  // Coverage detail
+  function getCoverage(){
+    const items = [
+      {id:"cov_medical", label:"醫療（住院/手術/實支）"},
+      {id:"cov_accident", label:"意外"},
+      {id:"cov_cancer", label:"癌症"},
+      {id:"cov_ci", label:"重大傷病"},
+      {id:"cov_ltc", label:"長照"},
+      {id:"cov_life", label:"壽險責任（家庭/房貸）"}
+    ];
+    const has = items.filter(x => document.getElementById(x.id)?.checked);
+    const missing = items.filter(x => !document.getElementById(x.id)?.checked);
+    return {items, count: has.length, has, missing};
+  }
+
+  function coverageStatus(count){
+    if(count>=5) return {label:"很完整 ✅", msg:"保障模組已相對完整，接下來重點會回到預備金與理財習慣。"};
+    if(count>=3) return {label:"中等 ⚠️", msg:"已有部分保障，但仍可能有明顯缺口，建議先補最常用的基礎模組。"};
+    return {label:"偏少 ❗", msg:"保障模組偏少，遇到突發風險容易打斷現金流，建議先做基本防護。"};
   }
 
   function updatePreviewAndReport(){
@@ -416,13 +468,31 @@
     document.getElementById("reportPlanText").innerText=plan.text?plan.text:"（未填）";
     document.getElementById("reportPlanAmount").innerText=fmt(plan.amount);
     document.getElementById("reportPlanYears").innerText=plan.years?`${plan.years} 年`:"尚未確定";
+
+    // coverage status + report list
+    const cov = getCoverage();
+    document.getElementById("covCount").innerText = cov.count;
+
+    const cs = coverageStatus(cov.count);
+    document.getElementById("covStatus").innerText = cs.label;
+
+    const missingTop = cov.missing.map(x=>x.label).slice(0,3).join("、");
+    document.getElementById("covHint").innerText =
+      `${cs.msg}\n優先補強建議：${missingTop || "（已很完整）"}`;
+
+    const hasText = cov.has.length ? cov.has.map(x=>x.label).join("、") : "（未勾選）";
+    const missingText = cov.missing.length ? cov.missing.map(x=>x.label).join("、") : "—";
+
+    document.getElementById("reportCovHas").innerText = hasText;
+    document.getElementById("reportCovMissing").innerText = missingText;
+    document.getElementById("reportCovStatus").innerText = cs.label;
   }
 
   // -------- Radar axis scoring (Finance, Protection, Emergency Fund) ----------
-  function scoreProtection(){ // 保障
-    const v=document.getElementById("insuranceStatus").value;
-    if(v==="basic") return 3;
-    if(v==="partial") return 2;
+  function scoreProtection(){ // 保障：依模組數
+    const c = getCoverage().count;
+    if(c>=5) return 3;
+    if(c>=3) return 2;
     return 1;
   }
 
@@ -450,9 +520,9 @@
 
   function focusExplain(f){
     const map={
-      life:"你選擇的是：生活不中斷（今天先把突發事件造成的缺口補起來，確保現金流不中斷）。",
-      family:"你選擇的是：不拖累家人（今天先把責任缺口補起來，鎖住家人的安全感）。",
-      future:"你選擇的是：未來計畫不被打斷（今天先保住計畫，再用固定金額把計畫做出來）。"
+      life:"你選擇的是：生活不中斷（先把突發事件造成的缺口補起來，確保現金流不中斷）。",
+      family:"你選擇的是：不拖累家人（先把責任缺口補起來，鎖住家人的安全感）。",
+      future:"你選擇的是：未來計畫不被打斷（先保住計畫，再用固定金額把計畫做出來）。"
     };
     return map[f] || map.life;
   }
@@ -470,6 +540,10 @@
     const income=getMonthlyIncome();
     const remain=income-exp;
 
+    const cov = getCoverage();
+    const missingList = cov.missing.map(x=>x.label);
+    const covLine = `• 保障模組：已具備 ${cov.count}/6（建議優先補：${missingList.slice(0,3).join("、") || "已很完整"}）`;
+
     const ageLine = age ? `• 年齡：${age} 歲 ${ageStage(age)}（建議會依人生階段調整優先順序）` : "";
     const fundLine = exp>0
       ? `• 預備金約可撐 ${fm?fm.toFixed(1):"0"} 個月（${st.label}）`
@@ -484,11 +558,12 @@
 
     const base = [
       `你最在意：${focusLabel(currentFocus)}`,
-      `你選擇版本：${dealLabel(currentDeal)}`,
+      `建議版本：${dealLabel(currentDeal)}`,
       "",
       "結構提醒：",
       ageLine,
       cashLine,
+      covLine,
       fundLine,
       planLine,
       housingLine,
@@ -499,37 +574,37 @@
       life: {
         A: {
           steps:[
-            "1) 先做醫療＋意外：把突發事件的『自費缺口』補起來",
-            "2) 預備金不足：用可支配所得先拉到至少 1–3 個月",
-            "3) 投資後面再說：先穩定再加速"
+            "1) 先把『最容易打斷生活』的缺口補起來（醫療/意外優先）",
+            "2) 預備金不足：先從 1–3 個月開始，慢慢拉到 3–6 個月",
+            "3) 理財用小額建立習慣：每月固定一筆，先做到『不中斷』"
           ],
-          close:"『先把「不中斷收入」做到位，先規劃「最基本版」，先有基本防護』"
+          close:"討論引導：『我們今天先把「不中斷」做到位，我做一個「低負擔版」讓你先有基本防護，你覺得可以嗎？』"
         },
         B: {
           steps:[
-            "1) 醫療＋意外一次到位：把常見突發風險的缺口補齊",
+            "1) 醫療＋意外整理到位：把常見突發風險缺口補齊",
             "2) 預備金拉到 3–6 個月：讓現金流更穩",
-            "3) 再把投資變成習慣：用定期定額固定推進"
+            "3) 理財規劃制度化：固定投入，穩定推進計畫"
           ],
-          close:"『直接規劃「完整到位版」，未來就不用擔心。每個月的可負擔的預算完成規劃。』"
+          close:"討論引導：『我們直接做「完整到位版」，你後面會省很多心。我做一個月負擔合理的配置，你確認一下就可以。』"
         }
       },
       family: {
         A: {
           steps:[
-            "1) 先補責任缺口：先把『拖累家人』的風險降到最低",
+            "1) 先補『責任缺口』：讓家人不會因突發事件被拖累",
             "2) 再補醫療自費缺口：避免長期治療拖垮家庭現金流",
-            "3) 預備金慢慢拉：先從 1–3 個月開始"
+            "3) 預備金先穩住：從 1–3 個月開始"
           ],
-          close:"『重點在意的是家人，先補「責任缺口」，在預算內完成保障規劃』"
+          close:"討論引導：『你重點是家人，我們先補「責任缺口」，用你能接受的月負擔先做到位，好嗎？』"
         },
         B: {
           steps:[
-            "1) 責任保障＋重大風險一次到位：把家庭最怕的缺口補齊",
-            "2) 醫療與意外整理完整：降低長期花費衝擊",
+            "1) 責任保障＋重大風險整理完整：把家庭最怕的缺口補齊",
+            "2) 醫療與意外一次整理：降低長期花費衝擊",
             "3) 預備金拉到 3–6 個月：家庭安全邊際更大"
           ],
-          close:"『我們直接做「完整到位版」，把在意的「家人安全感」一次做到位。』"
+          close:"討論引導：『我們做「完整到位版」，把你在意的「家人安全感」一次顧好。我做兩個負擔級距你選一個。』"
         }
       },
       future: {
@@ -537,9 +612,9 @@
           steps:[
             "1) 先用風險管理把計畫保住：醫療/意外先做基本防護",
             "2) 每月固定一筆做『計畫基金』：先把目標做出來",
-            "3) 投資等現金流穩再加：避免中途被迫停掉"
+            "3) 理財慢慢加：現金流穩再把投資習慣放大"
           ],
-          close:"『重點是計畫，先做「低負擔版」把計畫保住，再用固定金額做計畫基金。』"
+          close:"討論引導：『你重點是計畫，我們先做「低負擔版」把計畫保住，再用固定金額做計畫基金，你覺得OK嗎？』"
         },
         B: {
           steps:[
@@ -547,7 +622,7 @@
             "2) 計畫基金＋投資習慣一起建立：用制度把目標推進",
             "3) 預備金拉到 3–6 個月：讓計畫更不怕波動"
           ],
-          close:"『最在意的是計畫，先做「完整到位版」，把「存一桶金＋風險保護傘」都完成。』"
+          close:"討論引導：『我們做「完整到位版」，一次把「保住＋做出來」都顧到。我做兩個版本你選一個。』"
         }
       }
     };
@@ -570,8 +645,7 @@
     const dealPill=document.getElementById("dealPill");
     const dealScript=document.getElementById("dealScript");
 
-    // small card script = last close line + one-liner
-    const oneLiner = `今天先做：${focusLabel(currentFocus)}（${dealLabel(currentDeal)}）`;
+    const oneLiner = `今天先討論：${focusLabel(currentFocus)}（${dealLabel(currentDeal)}）`;
     const closeLine = document.getElementById("nextStep").innerText.split("\n").slice(-1)[0] || "";
 
     dealPill.innerText = `版本：${dealLabel(currentDeal)}｜重視：${focusLabel(currentFocus)}`;
@@ -613,21 +687,22 @@
     const fm=getFundMonths();
     const st=fundStatus(fm);
     const prot=scoreProtection();
+    const cov=getCoverage().count;
 
     if(remain<=0){
       summaryEl.innerText="現金流目前偏緊，建議先把支出結構與保費負擔整理清楚，再談投資與長期規劃。";
     }else if(st.level==="bad"){
-      summaryEl.innerText="預備金不足：先把緊急預備金拉起來，避免一個事件就讓現金流失控。";
-    }else if(prot===1){
-      summaryEl.innerText="保障偏少：先把基本保障補起來，讓突發事件不會打斷生活與計畫。";
+      summaryEl.innerText="預備金不足：先把緊急預備金拉起來，避免一次事件就讓現金流失控。";
+    }else if(prot===1 || cov<=2){
+      summaryEl.innerText="保障模組偏少：建議先補基本防護，避免突發風險打斷生活與計畫。";
     }else{
-      summaryEl.innerText="你的結構有基礎：可以用「保住風險＋拉起預備金＋建立理財習慣」三步驟穩定推進。";
+      summaryEl.innerText="你的結構有基礎：可以用「補齊保障缺口＋拉起預備金＋建立理財習慣」三步驟穩定推進。";
     }
 
-    // Generate suggestion with currentFocus/currentDeal
+    // Generate suggestion
     renderNextStep();
 
-    // Clear focus & deal card until chosen
+    // Clear discussion card until chosen
     document.getElementById("focusResult").innerText="";
     document.getElementById("focusTalk").innerText="";
     document.getElementById("dealBox").style.display="none";
@@ -649,7 +724,6 @@
     document.getElementById("focusTalk").innerText = focusText;
     document.getElementById("focusResult").innerText = focusText;
 
-    // Also refresh next steps immediately
     renderNextStep();
   }
 
@@ -668,12 +742,7 @@
     }
 
     updatePreviewAndReport();
-
-    // Ensure deal card shows if user already selected
-    if(document.getElementById("dealBox").style.display==="none"){
-      // show minimal card if they didn't click
-      renderNextStep();
-    }
+    renderNextStep(); // ensure content up-to-date
 
     // Replace radar canvas with image to avoid missing in PDF
     const canvas=document.getElementById("triangleChart");
@@ -728,7 +797,7 @@
     }
 
     const alias=(document.getElementById("clientAlias").value||"").trim();
-    const filenameBase=alias?`理財金三角_成交版報告_${alias}`:"理財金三角_成交版報告";
+    const filenameBase=alias?`理財金三角_分析報告_${alias}`:"理財金三角_分析報告";
     pdf.save(`${filenameBase}.pdf`);
   }
 
@@ -757,7 +826,12 @@
 
     document.getElementById("investmentMonthly").value="";
     document.getElementById("investmentMethods").value="";
-    document.getElementById("insuranceStatus").value="none";
+
+    // coverage checks
+    ["cov_medical","cov_accident","cov_cancer","cov_ci","cov_ltc","cov_life"].forEach(id=>{
+      const el=document.getElementById(id);
+      if(el) el.checked=false;
+    });
 
     document.getElementById("summary").innerText="";
     document.getElementById("focusResult").innerText="";
@@ -798,7 +872,7 @@
       "exp_housing","exp_carloan","exp_utilities","exp_food","exp_transport","exp_kids","exp_lifestyle","exp_other",
       "insuranceMonthly","insuranceNote",
       "emergencyFund","planText","planAmount","planYears",
-      "investmentMonthly","investmentMethods","insuranceStatus"
+      "investmentMonthly","investmentMethods"
     ];
     watchIds.forEach(id=>{
       const el=document.getElementById(id);
@@ -806,19 +880,25 @@
       el.addEventListener(el.tagName==="SELECT" ? "change" : "input", updatePreviewAndReport);
     });
 
+    // checkboxes realtime
+    ["cov_medical","cov_accident","cov_cancer","cov_ci","cov_ltc","cov_life"].forEach(id=>{
+      const el=document.getElementById(id);
+      if(!el) return;
+      el.addEventListener("change", updatePreviewAndReport);
+    });
+
     document.getElementById("btnAnalyze").addEventListener("click",analyze);
 
     document.getElementById("btnOpenFocus").addEventListener("click",()=>{
       const summaryText=(document.getElementById("summary").innerText||"").trim();
       if(!summaryText){
-        alert("請先按「分析我的理財金三角」產生報告內容，再進入成交流程。");
+        alert("請先按「分析我的理財金三角」產生報告內容，再進入下一步。");
         return;
       }
       openFocus();
     });
 
     document.getElementById("btnToDeal").addEventListener("click",()=>{
-      // require focus chosen at least once: if no talk text, default to life
       if(!document.getElementById("focusTalk").innerText.trim()){
         chooseFocus("life");
       }
@@ -838,7 +918,6 @@
 
     document.getElementById("btnCloseDeal").addEventListener("click",()=>{
       closeDeal();
-      // Ensure suggestion + deal card present
       renderNextStep();
       renderDealCard();
     });
@@ -849,6 +928,14 @@
     syncIncomeLabel();
     updatePreviewAndReport();
     renderNextStep();
+  });
+
+  // close modals when click outside
+  window.addEventListener("click",(e)=>{
+    const fm=document.getElementById("focusModal");
+    const dm=document.getElementById("dealModal");
+    if(e.target===fm) closeFocus();
+    if(e.target===dm) closeDeal();
   });
 </script>
 </body>
