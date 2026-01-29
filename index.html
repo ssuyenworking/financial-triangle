@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>理財金三角｜財務結構檢視</title>
+  <title>理財金三角｜現場成交版</title>
 
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -40,26 +40,40 @@
     @media (max-width:720px){ .grid-2{grid-template-columns:1fr} }
 
     .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);z-index:999}
-    .modal-content{background:#fff;margin:10% auto;padding:18px;border-radius:12px;width:92%;max-width:460px}
+    .modal-content{background:#fff;margin:8% auto;padding:18px;border-radius:12px;width:92%;max-width:520px}
     .option-btn{width:100%;padding:12px;border-radius:8px;border:1px solid #ccc;background:#f7f7f7;margin-top:8px;font-size:16px;cursor:pointer}
+    .pill{display:inline-block;padding:6px 10px;border-radius:999px;background:#f1f5ff;border:1px solid #d7e4ff;font-weight:900;margin-top:8px}
 
     #reportHeader{margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid #eee}
     .report-title{font-size:20px;font-weight:1000;margin:0}
     .report-sub{color:#555;margin:4px 0 0}
     .report-meta{color:#777;font-size:13px;margin-top:8px;line-height:1.5}
     .small-note{font-size:13px;color:#777;margin-top:12px}
+
+    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    @media (max-width:720px){ .two-col{grid-template-columns:1fr} }
+
+    .card-mini{background:#fafafa;border:1px solid #eee;border-radius:10px;padding:12px;margin-top:10px}
+    .card-mini-title{font-weight:1000;margin:0 0 6px}
+    .tag{display:inline-block;font-size:12px;font-weight:900;padding:4px 8px;border-radius:999px;background:#eee;margin-top:6px}
+    .tag.good{background:#e7f7ee}
+    .tag.warn{background:#fff2df}
+    .tag.bad{background:#ffe6e6}
   </style>
 </head>
 
 <body>
   <h1>理財金三角</h1>
-  <div class="subtitle">快速看懂你的財務結構</div>
-  <div class="desc">現場填寫 → 系統算出現金流與準備度 → 依客戶重視點給出下一步（可下載PDF）</div>
+  <div class="subtitle">現場成交版：財務結構檢視</div>
+  <div class="desc">填寫 → 分析 → 選客戶最重視 → 二選一版本 → 顯示成交話術小卡 → 可下載PDF</div>
 
   <!-- Input -->
   <div class="card">
     <label>客戶代稱（選填）</label>
-    <input type="text" id="clientAlias" placeholder="例如：王先生 / 小潔 / A客（避免填身分證、電話等個資）" />
+    <input type="text" id="clientAlias" placeholder="例如：王先生 / 陳小姐 / A客（避免填身分證、電話等個資）" />
+
+    <label>年齡</label>
+    <input type="number" id="clientAge" placeholder="例如：28" inputmode="numeric"/>
 
     <label>收入輸入方式</label>
     <select id="incomeType">
@@ -105,7 +119,7 @@
     <div class="sub-label">其他固定支出</div>
     <input type="number" id="exp_other" placeholder="0" inputmode="numeric"/>
 
-    <!-- Insurance: client fill monthly premium amount + note -->
+    <!-- Insurance -->
     <label>保險（客戶自行填寫）</label>
     <div class="grid-2">
       <div>
@@ -169,7 +183,7 @@
       </div>
     </div>
 
-    <!-- Basic insurance status (for scoring) -->
+    <!-- Protection self-check -->
     <label>保障自評（只用於結構判讀）</label>
     <select id="insuranceStatus">
       <option value="none">沒有/很少</option>
@@ -184,10 +198,11 @@
   <div class="card" id="report">
     <div id="reportHeader">
       <p class="report-title">理財金三角｜財務結構檢視報告</p>
-      <p class="report-sub">安全 × 準備 × 成長（只看結構，不談報酬）</p>
+      <p class="report-sub">理財 × 保障 × 緊急預備金（只看結構，不談報酬）</p>
       <div class="report-meta">
         <div>日期：<span id="reportDate"></span></div>
         <div>客戶代稱：<span id="reportAlias">（未填）</span></div>
+        <div>年齡：<span id="reportAge">—</span></div>
       </div>
     </div>
 
@@ -226,6 +241,13 @@
 
     <div id="summary" class="result"></div>
     <div id="focusResult" class="result"></div>
+
+    <div class="card-mini" id="dealBox" style="display:none;">
+      <p class="card-mini-title">成交話術小卡</p>
+      <div class="pill" id="dealPill">版本：—</div>
+      <div class="hint" id="dealScript" style="margin-top:10px;"></div>
+    </div>
+
     <div id="nextStep" class="result" style="background:#f7f7ff;padding:12px;border-radius:10px;"></div>
 
     <p class="small-note">
@@ -234,33 +256,65 @@
     </p>
   </div>
 
-  <button class="cta" id="btnOpenModal" type="button">成交按鈕：選客戶最重視的（會影響最後建議）</button>
+  <button class="cta" id="btnOpenFocus" type="button">成交按鈕：先選客戶最重視的</button>
   <button class="secondary" id="btnPDF" type="button">下載本次分析報告（PDF）</button>
   <button class="reset" id="btnReset" type="button">重設／下一位客戶</button>
 
-  <!-- Modal -->
-  <div id="modal" class="modal">
+  <!-- Focus Modal -->
+  <div id="focusModal" class="modal">
     <div class="modal-content">
       <h3 style="margin:0 0 8px;">如果只能先顧好一件事，你現在最在意哪一塊？</h3>
       <button class="option-btn" type="button" data-focus="life">生活不中斷</button>
       <button class="option-btn" type="button" data-focus="family">不拖累家人</button>
       <button class="option-btn" type="button" data-focus="future">未來計畫不被打斷</button>
-      <p id="talkCard" style="margin-top:12px;line-height:1.6;"></p>
-      <button class="primary" id="btnCloseModal" type="button">了解，套用建議並關閉</button>
+      <p id="focusTalk" style="margin-top:12px;line-height:1.6;"></p>
+      <button class="primary" id="btnToDeal" type="button">下一步：二選一版本</button>
+      <button class="reset" id="btnCloseFocus" type="button">先不要</button>
+    </div>
+  </div>
+
+  <!-- Deal Modal (A/B) -->
+  <div id="dealModal" class="modal">
+    <div class="modal-content">
+      <h3 style="margin:0 0 8px;">二選一：你要先做哪個版本？</h3>
+      <div class="hint">建議做法：先用 A 低負擔先卡位，讓客戶「先有防護」。願意的客戶再做 B 完整到位。</div>
+
+      <button class="option-btn" type="button" data-deal="A">
+        A｜低負擔先卡位（先成交）
+        <div class="hint">先把「最重要那一塊」做到位，成本最低、速度最快。</div>
+      </button>
+
+      <button class="option-btn" type="button" data-deal="B">
+        B｜完整到位（一次補齊）
+        <div class="hint">一次把缺口補齊，結構更完整、後續更省心。</div>
+      </button>
+
+      <button class="primary" id="btnCloseDeal" type="button">套用並關閉</button>
     </div>
   </div>
 
 <script>
   let chart=null;
 
-  // 目前客戶選擇的重視項目（會影響最後建議）
-  let currentFocus="life";
+  // Focus + Deal choice
+  let currentFocus="life";   // life | family | future
+  let currentDeal="A";       // A | B
 
   const n=v=>Number(v||0);
   const fmt=v=>Math.round(Number(v||0)).toLocaleString("zh-Hant-TW");
+
   function todayString(){
     const d=new Date();
     return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+  }
+
+  function getAge(){ return Number(document.getElementById("clientAge").value || 0); }
+  function ageStage(age){
+    if(age<=0) return "";
+    if(age<30) return "（起步期）";
+    if(age<40) return "（累積期）";
+    if(age<50) return "（責任高峰期）";
+    return "（穩定／轉換期）";
   }
 
   function getMonthlyIncome(){
@@ -275,8 +329,7 @@
   function getExpenseTotal(){
     const ids=["exp_housing","exp_carloan","exp_utilities","exp_food","exp_transport","exp_kids","exp_lifestyle","exp_other"];
     const base=ids.reduce((s,id)=>s+n(document.getElementById(id).value),0);
-    // 保費也算入日常開銷
-    return base + getInsuranceMonthly();
+    return base + getInsuranceMonthly(); // 保費算進開銷
   }
 
   function getEmergencyFund(){ return n(document.getElementById("emergencyFund").value); }
@@ -301,18 +354,21 @@
     return "無（免房租）";
   }
 
-  // 單一門檻（不分學生/上班族）
+  // Single thresholds (no student/worker)
   function fundStatus(fm){
-    if(fm>=6) return {label:"很穩 ✅", msg:"預備金 ≥6 個月：現金流遇到變動也比較扛得住。"};
-    if(fm>=3) return {label:"足夠 👍", msg:"預備金 3–6 個月：基本安全邊際不錯。"};
-    if(fm>=1) return {label:"尚可 ⚠️", msg:"預備金 1–3 個月：尚可，但收入中斷時壓力會上來。"};
-    return {label:"不足 ❗", msg:"預備金 <1 個月：偏不足，建議先拉到至少 1–3 個月。"};
+    if(fm>=6) return {label:"很穩 ✅", msg:"預備金 ≥6 個月：現金流遇到變動也比較扛得住。", level:"good"};
+    if(fm>=3) return {label:"足夠 👍", msg:"預備金 3–6 個月：基本安全邊際不錯。", level:"good"};
+    if(fm>=1) return {label:"尚可 ⚠️", msg:"預備金 1–3 個月：尚可，但收入中斷時壓力會上來。", level:"warn"};
+    return {label:"不足 ❗", msg:"預備金 <1 個月：偏不足，建議先拉到至少 1–3 個月。", level:"bad"};
   }
 
   function updatePreviewAndReport(){
     document.getElementById("reportDate").innerText=todayString();
     const alias=(document.getElementById("clientAlias").value||"").trim();
     document.getElementById("reportAlias").innerText=alias?alias:"（未填）";
+
+    const age=getAge();
+    document.getElementById("reportAge").innerText = age ? `${age} 歲 ${ageStage(age)}` : "—";
 
     const income=getMonthlyIncome();
     const exp=getExpenseTotal();
@@ -325,7 +381,7 @@
     document.getElementById("reportExpense").innerText=fmt(exp);
     document.getElementById("reportRemaining").innerText=fmt(remain);
 
-    // housing report
+    // housing
     const ht=document.getElementById("housingType").value;
     const hn=(document.getElementById("housingNote").value||"").trim();
     document.getElementById("reportHousingType").innerText=housingTypeLabel(ht);
@@ -344,7 +400,7 @@
     document.getElementById("fundHint").innerText="預備金月數 = 緊急預備金 ÷ 每月日常開銷合計（含保費）\n"+st.msg;
     document.getElementById("reportFundStatus").innerText=st.label;
 
-    // insurance & investment report
+    // insurance & investment
     const insM=getInsuranceMonthly();
     const insN=(document.getElementById("insuranceNote").value||"").trim();
     document.getElementById("reportInsMonthly").innerText=fmt(insM);
@@ -362,42 +418,59 @@
     document.getElementById("reportPlanYears").innerText=plan.years?`${plan.years} 年`:"尚未確定";
   }
 
-  // --- scoring ---
-  function scoreSafety(){
+  // -------- Radar axis scoring (Finance, Protection, Emergency Fund) ----------
+  function scoreProtection(){ // 保障
     const v=document.getElementById("insuranceStatus").value;
     if(v==="basic") return 3;
     if(v==="partial") return 2;
     return 1;
   }
-  function scorePreparation(){
-    const remain=getMonthlyIncome()-getExpenseTotal();
-    const fm=getFundMonths();
-    const plan=getPlan();
-    const hasPlanText=!!plan.text;
-    const hasPlanNumbers=(plan.amount>0)||(plan.years>0);
 
-    let s=1;
-    if(remain>0) s=2;
-    if(remain>0 && fm>=3) s=3;
-    if(hasPlanText && hasPlanNumbers) s=Math.min(3, s+1);
-    return Math.max(1, Math.min(3, s));
-  }
-  function scoreGrowth(){
-    const invM=getInvestmentMonthly();
-    const invMeth=(document.getElementById("investmentMethods").value||"").trim();
-    if(invM>0 && invMeth) return 3;
-    if(invM>0 || invMeth) return 2;
+  function scoreEmergencyFund(){ // 緊急預備金
+    const fm=getFundMonths();
+    if(fm>=3) return 3;
+    if(fm>=1) return 2;
     return 1;
   }
 
-  // --- render final suggestion based on focus + data ---
-  function renderNextStep(focus){
+  function scoreFinance(){ // 理財（現金流 + 投資習慣）
+    const remain=getMonthlyIncome()-getExpenseTotal();
+    const inv=getInvestmentMonthly();
+    if(remain<=0) return 1;
+    if(inv>0) return 3;
+    return 2;
+  }
+
+  // -------- Suggestions engine ----------
+  function focusLabel(f){
+    if(f==="family") return "不拖累家人";
+    if(f==="future") return "未來計畫不被打斷";
+    return "生活不中斷";
+  }
+
+  function focusExplain(f){
+    const map={
+      life:"你選擇的是：生活不中斷（今天先把突發事件造成的缺口補起來，確保現金流不中斷）。",
+      family:"你選擇的是：不拖累家人（今天先把責任缺口補起來，鎖住家人的安全感）。",
+      future:"你選擇的是：未來計畫不被打斷（今天先保住計畫，再用固定金額把計畫做出來）。"
+    };
+    return map[f] || map.life;
+  }
+
+  function dealLabel(d){ return d==="B" ? "B｜完整到位" : "A｜低負擔先卡位"; }
+
+  function renderNextStep(){
+    const age=getAge();
     const fm=getFundMonths();
     const st=fundStatus(fm);
     const exp=getExpenseTotal();
     const plan=getPlan();
     const ht=document.getElementById("housingType").value;
 
+    const income=getMonthlyIncome();
+    const remain=income-exp;
+
+    const ageLine = age ? `• 年齡：${age} 歲 ${ageStage(age)}（建議會依人生階段調整優先順序）` : "";
     const fundLine = exp>0
       ? `• 預備金約可撐 ${fm?fm.toFixed(1):"0"} 個月（${st.label}）`
       : `• 預備金狀態：${st.label}（先填日常開銷會更準）`;
@@ -406,71 +479,120 @@
       ? `• 3–5 年計畫：${plan.text}${plan.amount>0?`（約 ${fmt(plan.amount)}）`:""}${plan.years>0?`，目標 ${plan.years} 年。`:""}`
       : "• 3–5 年計畫：尚未填（建議先寫目標內容＋大概金額）";
 
-    const housingLine = (ht==="mortgage") ? "• 有房貸：責任風險優先（醫療/意外＋壽險責任）" : "";
+    const housingLine = (ht==="mortgage") ? "• 有房貸：責任風險優先（醫療/意外＋責任型保障）" : "";
+    const cashLine = `• 可支配所得（月剩餘）：${fmt(remain)}（剩餘越穩，越好做預備金與理財）`;
 
-    const scripts = {
-      life: {
-        title: "你最在意：生活不中斷",
-        steps: [
-          "1) 先做醫療＋意外：把突發事件的『自費缺口』補起來",
-          "2) 預備金不足時：先把預備金拉到至少 1–3 個月（再往 3–6 個月）",
-          "3) 最後才談投資：先穩定再加速"
-        ],
-        close: "成交收尾：『我們今天先把「不中斷」做到位，我先做一個「最低負擔版」讓你先有基本防護，可以嗎？』"
-      },
-      family: {
-        title: "你最在意：不拖累家人",
-        steps: [
-          "1) 先做責任保障：壽險責任＋重大風險（醫療/重大傷病等）",
-          "2) 再補醫療自費缺口：住院/手術/長期治療",
-          "3) 投資放後面：先把『家人不被拖累』這件事鎖住"
-        ],
-        close: "成交收尾：『你的重點是家人，我們先把責任缺口補上，做到「發生事不會拖累家人」，我先做一個你能接受的月繳版本，好嗎？』"
-      },
-      future: {
-        title: "你最在意：未來計畫不被打斷",
-        steps: [
-          "1) 先用風險管理保護計畫：醫療/意外＋重大風險",
-          "2) 再用現金流規劃計畫：每月固定一筆做「計畫基金」",
-          "3) 最後把投資變成習慣：用定期定額綁住長期目標"
-        ],
-        close: "成交收尾：『你最在意的是計畫，我們先用保障把計畫「保住」，再用每月固定金額把計畫「做出來」，我做兩個版本你選一個，好嗎？』"
-      }
-    };
-
-    const s = scripts[focus] || scripts.life;
-
-    const lines = [
-      s.title,
+    const base = [
+      `你最在意：${focusLabel(currentFocus)}`,
+      `你選擇版本：${dealLabel(currentDeal)}`,
       "",
       "結構提醒：",
+      ageLine,
+      cashLine,
       fundLine,
       planLine,
       housingLine,
-      "",
+      ""
+    ].filter(Boolean);
+
+    const scripts = {
+      life: {
+        A: {
+          steps:[
+            "1) 先做醫療＋意外：把突發事件的『自費缺口』補起來",
+            "2) 預備金不足：用可支配所得先拉到至少 1–3 個月",
+            "3) 投資後面再說：先穩定再加速"
+          ],
+          close:"『先把「不中斷收入」做到位，先規劃「最基本版」，先有基本防護』"
+        },
+        B: {
+          steps:[
+            "1) 醫療＋意外一次到位：把常見突發風險的缺口補齊",
+            "2) 預備金拉到 3–6 個月：讓現金流更穩",
+            "3) 再把投資變成習慣：用定期定額固定推進"
+          ],
+          close:"『直接規劃「完整到位版」，未來就不用擔心。每個月的可負擔的預算完成規劃。』"
+        }
+      },
+      family: {
+        A: {
+          steps:[
+            "1) 先補責任缺口：先把『拖累家人』的風險降到最低",
+            "2) 再補醫療自費缺口：避免長期治療拖垮家庭現金流",
+            "3) 預備金慢慢拉：先從 1–3 個月開始"
+          ],
+          close:"『重點在意的是家人，先補「責任缺口」，在預算內完成保障規劃』"
+        },
+        B: {
+          steps:[
+            "1) 責任保障＋重大風險一次到位：把家庭最怕的缺口補齊",
+            "2) 醫療與意外整理完整：降低長期花費衝擊",
+            "3) 預備金拉到 3–6 個月：家庭安全邊際更大"
+          ],
+          close:"『我們直接做「完整到位版」，把在意的「家人安全感」一次做到位。』"
+        }
+      },
+      future: {
+        A: {
+          steps:[
+            "1) 先用風險管理把計畫保住：醫療/意外先做基本防護",
+            "2) 每月固定一筆做『計畫基金』：先把目標做出來",
+            "3) 投資等現金流穩再加：避免中途被迫停掉"
+          ],
+          close:"『重點是計畫，先做「低負擔版」把計畫保住，再用固定金額做計畫基金。』"
+        },
+        B: {
+          steps:[
+            "1) 風險管理完整化：讓計畫不會被一次事件打斷",
+            "2) 計畫基金＋投資習慣一起建立：用制度把目標推進",
+            "3) 預備金拉到 3–6 個月：讓計畫更不怕波動"
+          ],
+          close:"『最在意的是計畫，先做「完整到位版」，把「存一桶金＋風險保護傘」都完成。』"
+        }
+      }
+    };
+
+    const s = (scripts[currentFocus] && scripts[currentFocus][currentDeal]) || scripts.life.A;
+
+    const lines = [
+      ...base,
       "下一步建議（依你選的優先順序）：",
       ...s.steps,
       "",
       s.close
-    ].filter(Boolean);
+    ];
 
     document.getElementById("nextStep").innerText = lines.join("\n");
+  }
+
+  function renderDealCard(){
+    const dealBox=document.getElementById("dealBox");
+    const dealPill=document.getElementById("dealPill");
+    const dealScript=document.getElementById("dealScript");
+
+    // small card script = last close line + one-liner
+    const oneLiner = `今天先做：${focusLabel(currentFocus)}（${dealLabel(currentDeal)}）`;
+    const closeLine = document.getElementById("nextStep").innerText.split("\n").slice(-1)[0] || "";
+
+    dealPill.innerText = `版本：${dealLabel(currentDeal)}｜重視：${focusLabel(currentFocus)}`;
+    dealScript.innerText = `${oneLiner}\n\n${closeLine}`;
+    dealBox.style.display="block";
   }
 
   function analyze(){
     updatePreviewAndReport();
 
-    const safety=scoreSafety();
-    const prep=scorePreparation();
-    const growth=scoreGrowth();
+    const finance = scoreFinance();
+    const protection = scoreProtection();
+    const emergency = scoreEmergencyFund();
 
     if(chart) chart.destroy();
     chart=new Chart(document.getElementById("triangleChart"),{
       type:"radar",
       data:{
-        labels:["安全","準備","成長"],
+        labels:["理財","保障","緊急預備金"],
         datasets:[{
-          data:[safety,prep,growth],
+          data:[finance, protection, emergency],
           backgroundColor:"rgba(31,111,255,0.2)",
           borderColor:"#1f6fff",
           borderWidth:2
@@ -483,45 +605,61 @@
       }
     });
 
+    // Summary
     const summaryEl=document.getElementById("summary");
+    const exp=getExpenseTotal();
+    const income=getMonthlyIncome();
+    const remain=income-exp;
+    const fm=getFundMonths();
+    const st=fundStatus(fm);
+    const prot=scoreProtection();
 
-    if(safety===1){
-      summaryEl.innerText="目前最需要先處理的不是投資，而是先把基本保障與風險補起來，避免一次事件讓現金流斷掉。";
-    }else if(prep===1){
-      summaryEl.innerText="你現在的關鍵是把緊急預備金拉起來，讓人生計畫不會被突發事件打斷。";
+    if(remain<=0){
+      summaryEl.innerText="現金流目前偏緊，建議先把支出結構與保費負擔整理清楚，再談投資與長期規劃。";
+    }else if(st.level==="bad"){
+      summaryEl.innerText="預備金不足：先把緊急預備金拉起來，避免一個事件就讓現金流失控。";
+    }else if(prot===1){
+      summaryEl.innerText="保障偏少：先把基本保障補起來，讓突發事件不會打斷生活與計畫。";
     }else{
-      summaryEl.innerText="你的財務結構已有基礎，可以一步一步完成：先穩定風險與預備金，再推進計畫與投資。";
+      summaryEl.innerText="你的結構有基礎：可以用「保住風險＋拉起預備金＋建立理財習慣」三步驟穩定推進。";
     }
 
-    // 依目前 focus 產生最後建議
-    renderNextStep(currentFocus);
+    // Generate suggestion with currentFocus/currentDeal
+    renderNextStep();
 
-    // 清空 focus 文字區（由選擇後再顯示）
+    // Clear focus & deal card until chosen
     document.getElementById("focusResult").innerText="";
-    document.getElementById("talkCard").innerText="";
+    document.getElementById("focusTalk").innerText="";
+    document.getElementById("dealBox").style.display="none";
+    document.getElementById("dealPill").innerText="版本：—";
+    document.getElementById("dealScript").innerText="";
   }
 
-  function openModal(){ document.getElementById("modal").style.display="block"; }
-  function closeModal(){ document.getElementById("modal").style.display="none"; }
+  // ---------- Modals ----------
+  function openFocus(){ document.getElementById("focusModal").style.display="block"; }
+  function closeFocus(){ document.getElementById("focusModal").style.display="none"; }
 
-  function selectFocus(type){
+  function openDeal(){ document.getElementById("dealModal").style.display="block"; }
+  function closeDeal(){ document.getElementById("dealModal").style.display="none"; }
+
+  function chooseFocus(type){
     currentFocus = type;
-    const focusResultEl=document.getElementById("focusResult");
-    const talkCardEl=document.getElementById("talkCard");
 
-    const map = {
-      life: "你選擇的是：生活不中斷（今天先把風險缺口補起來，確保現金流不中斷）。",
-      family: "你選擇的是：不拖累家人（今天先把責任缺口補起來，鎖住家人的安全感）。",
-      future: "你選擇的是：未來計畫不被打斷（今天先保住計畫，再用固定金額把計畫做出來）。"
-    };
+    const focusText = focusExplain(type);
+    document.getElementById("focusTalk").innerText = focusText;
+    document.getElementById("focusResult").innerText = focusText;
 
-    focusResultEl.innerText = map[type] || map.life;
-    talkCardEl.innerText = focusResultEl.innerText;
-
-    // 重新產生「最後建議」
-    renderNextStep(currentFocus);
+    // Also refresh next steps immediately
+    renderNextStep();
   }
 
+  function chooseDeal(deal){
+    currentDeal = deal;
+    renderNextStep();
+    renderDealCard();
+  }
+
+  // ---------- PDF ----------
   async function downloadPDF(){
     const summaryText=(document.getElementById("summary").innerText||"").trim();
     if(!summaryText){
@@ -531,7 +669,13 @@
 
     updatePreviewAndReport();
 
-    // 將 radar canvas 轉 img（避免 PDF 漏圖）
+    // Ensure deal card shows if user already selected
+    if(document.getElementById("dealBox").style.display==="none"){
+      // show minimal card if they didn't click
+      renderNextStep();
+    }
+
+    // Replace radar canvas with image to avoid missing in PDF
     const canvas=document.getElementById("triangleChart");
     const dataUrl=canvas.toDataURL("image/png",1.0);
     const img=document.createElement("img");
@@ -546,7 +690,6 @@
     canvas.style.display="none";
     wrapper.appendChild(img);
 
-    // 等 DOM 更新
     await new Promise(r=>requestAnimationFrame(r));
 
     const reportEl=document.getElementById("report");
@@ -557,7 +700,7 @@
       scrollY: -window.scrollY
     });
 
-    // 還原
+    // restore
     img.remove();
     canvas.style.display=backup||"block";
 
@@ -585,12 +728,15 @@
     }
 
     const alias=(document.getElementById("clientAlias").value||"").trim();
-    const filenameBase=alias?`理財金三角_結構檢視報告_${alias}`:"理財金三角_結構檢視報告";
+    const filenameBase=alias?`理財金三角_成交版報告_${alias}`:"理財金三角_成交版報告";
     pdf.save(`${filenameBase}.pdf`);
   }
 
+  // ---------- Reset ----------
   function resetAll(){
     document.getElementById("clientAlias").value="";
+    document.getElementById("clientAge").value="";
+
     document.getElementById("incomeType").value="month";
     document.getElementById("incomeAmount").value="";
 
@@ -615,11 +761,17 @@
 
     document.getElementById("summary").innerText="";
     document.getElementById("focusResult").innerText="";
-    document.getElementById("talkCard").innerText="";
+    document.getElementById("focusTalk").innerText="";
     document.getElementById("nextStep").innerText="";
 
+    document.getElementById("dealBox").style.display="none";
+    document.getElementById("dealPill").innerText="版本：—";
+    document.getElementById("dealScript").innerText="";
+
     currentFocus="life";
-    closeModal();
+    currentDeal="A";
+    closeFocus();
+    closeDeal();
 
     if(chart){ chart.destroy(); chart=null; }
 
@@ -629,6 +781,7 @@
     document.getElementById("incomeAmount").focus();
   }
 
+  // ---------- Wire up ----------
   document.addEventListener("DOMContentLoaded",()=>{
     document.getElementById("reportDate").innerText=todayString();
 
@@ -640,9 +793,8 @@
     }
     incomeTypeEl.addEventListener("change",syncIncomeLabel);
 
-    // realtime preview
     const watchIds=[
-      "clientAlias","incomeAmount","housingType","housingNote",
+      "clientAlias","clientAge","incomeAmount","housingType","housingNote",
       "exp_housing","exp_carloan","exp_utilities","exp_food","exp_transport","exp_kids","exp_lifestyle","exp_other",
       "insuranceMonthly","insuranceNote",
       "emergencyFund","planText","planAmount","planYears",
@@ -655,17 +807,48 @@
     });
 
     document.getElementById("btnAnalyze").addEventListener("click",analyze);
-    document.getElementById("btnOpenModal").addEventListener("click",openModal);
-    document.getElementById("btnCloseModal").addEventListener("click",closeModal);
+
+    document.getElementById("btnOpenFocus").addEventListener("click",()=>{
+      const summaryText=(document.getElementById("summary").innerText||"").trim();
+      if(!summaryText){
+        alert("請先按「分析我的理財金三角」產生報告內容，再進入成交流程。");
+        return;
+      }
+      openFocus();
+    });
+
+    document.getElementById("btnToDeal").addEventListener("click",()=>{
+      // require focus chosen at least once: if no talk text, default to life
+      if(!document.getElementById("focusTalk").innerText.trim()){
+        chooseFocus("life");
+      }
+      closeFocus();
+      openDeal();
+    });
+
+    document.getElementById("btnCloseFocus").addEventListener("click",closeFocus);
+
+    document.querySelectorAll("#focusModal .option-btn[data-focus]").forEach(btn=>{
+      btn.addEventListener("click",()=>chooseFocus(btn.dataset.focus));
+    });
+
+    document.querySelectorAll("#dealModal .option-btn[data-deal]").forEach(btn=>{
+      btn.addEventListener("click",()=>chooseDeal(btn.dataset.deal));
+    });
+
+    document.getElementById("btnCloseDeal").addEventListener("click",()=>{
+      closeDeal();
+      // Ensure suggestion + deal card present
+      renderNextStep();
+      renderDealCard();
+    });
+
     document.getElementById("btnPDF").addEventListener("click",downloadPDF);
     document.getElementById("btnReset").addEventListener("click",resetAll);
 
-    document.querySelectorAll(".option-btn").forEach(btn=>{
-      btn.addEventListener("click",()=>selectFocus(btn.dataset.focus));
-    });
-
     syncIncomeLabel();
     updatePreviewAndReport();
+    renderNextStep();
   });
 </script>
 </body>
